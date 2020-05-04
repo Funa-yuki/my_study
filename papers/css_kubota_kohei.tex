@@ -1,0 +1,226 @@
+\documentclass{css}
+%\documentclass[english]{css}
+
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{latexsym}
+\usepackage{url}
+\usepackage{here}
+
+\def\|{\verb|}
+
+\newcommand{\cssyear}[0]{2019}
+\newcommand{\cssname}[0]{CSS 2019}
+\newcommand{\cssversion}[0]{2019/07/01}
+\newcommand{\cssemail}[0]{css2019-office@sun.ac.jp}
+
+\begin{document}
+
+%% 本文が和文の場合，タイトル・著者名・著者所属・概要は，和文・英文共に必須．
+%% If you prepare this manuscript in English, there is no need to put Japanese metadata (title, author names, affiliations, abstract, and keywords) in it.
+
+\title{Webアプリケーションフレームワークに\\組み込むハニーポットの提案}
+\etitle{A Proposal of Web Application Framework \\Which Has an embedded Honeypot}
+
+\affiliate{KUG}{九州大学大学院システム情報科学府\\
+Kyushu University Graduate School and Facility of Information Science and Electrical Engineering}
+\affiliate{KU}{九州大学 情報基盤研究開発センター\\
+Kyushu University, Fukuoka, 819--0385, Japan}
+
+%% メールアドレスは省略可能だが，代表者のメールアドレスは必須．
+%% 姓名の間は半角スペースを入れること．
+
+\author{久保田 康平}{Kohei Kubota}{KUG}[kouhei.kubota@icloud.com]
+\author{小出 洋}{Hiroshi Koide}{KU}[koide@cc.kyushu-u.ac.jp]
+
+%% the following is author command for english option.
+%% at least one e-mail address is required.
+
+%\author{Taro Joho}{XX}[taro.joho@xx.ac.jp]
+%\author{Hanako Anzen}{XX, YY, ZZ}
+
+\begin{abstract}
+本研究はWebフレームワークに高対話型ハニーポットを設置し，攻撃の誘導と記録を行うことでWebアプリケーションのセキュリティを向上させることを目的にしている．特定の企業を標的とし，様々な方法を用いてそのサーバを攻撃する標的型攻撃や，脆弱性が発見された際，セキュリティパッチが当てられる前にその脆弱性に対して攻撃を行う，ゼロデイ攻撃が存在し，それらを防御することは難しくなっている．また，マルウェアを一部変更した亜種を用いたり，全く新しい攻撃を開発したりすることで，防御をしづらくする技術的な攻撃の多様化も問題である．これらの攻撃の変化に対して，攻撃を受けないようにする入口対策だけでは難しい．そのため攻撃を完全に遮断するのではなく，機密情報の存在するところから別の場所に誘導する研究が行われており，その研究の一つがハニーポットである．これは脆弱に見えるWeb上にサーバを設置し，攻撃させることで，被害にあうことなく検出と記録を行い，攻撃手法を収集する仕組みである．本論文ではWebアプリケーションフレームワーク内に高対話型ハニーポットを設置したWebアプリケーションフレームワークを提案する.
+\end{abstract}
+
+%% キーワード (1--5単語) の記載は任意．
+
+\begin{jkeyword}
+高対話型ハニーポット，Webアプリケーション，Webアプリケーションフレームワーク，Webアプリケーションファイアウォール
+\end{jkeyword}
+
+\begin{eabstract}
+The purpose of this study is that Web application's cyber security improves by installing a high interaction honeypot in a Web application framework, guiding and recording attacks. As a background, it is difficult to protect Web applications from APT(Advanced Persistent Threat) attacks or zero-day attacks. In addition, technical attack method's diversity, namely, subspecies of attacks and new attack methods developing, causes difficulty detecting attacks. These attack methods changing, it is difficult to block any attacks to Web applications. Hence, measures about leading attacks to information of no importance exist. One of the measures is a honeypot. It is a Web application decoy systems having a few purposes: detecting attacks, leading them to information of no importance, and collecting valuable information about attack methods. We suggest a Web application framework which installs a high interaction honeypot.
+\end{eabstract}
+
+%% the following keyword part is optional and can be omitted.
+
+\begin{ekeyword}
+Honeypot, Web application, Web application framework, Web appliaction firewall
+\end{ekeyword}
+
+%% if you use english opsion, you should put your English abstract in the abstract environment.
+%% eabstract is not displayed in english mode.
+
+\maketitle
+
+\section{はじめに}
+本研究の目的はアプリケーション内に搭載した高対話型ハニーポットを用いて攻撃を検出，記録， そして攻撃からWebアプリケーションの保護を可能にすることである.
+この目的を達成するために一般的なWebアプリケーションフレームワークの機能に加えて，HTTP通信における特定のリクエストを攻撃と推測する攻撃検出機能を用いて，攻撃者であるクライアントのIPアドレスとリクエストパス，リクエストのパラメータ，リクエストを送信した時間を記録し，その攻撃者と推測されるIPアドレスからのリクエストに対して，APIを変更することでWebアプリケーションを保護するWebアプリケーションフレームワークを提案する.\par
+近年，情報システムへの攻撃手法が変化している．その一つが特定の企業等を標的とし，様々な方法を用いてそのサーバを攻撃する標的型攻撃\cite{APT}である．この攻撃は具体的な攻撃手法が存在するのではなく，目的を達成するまで執拗に様々な攻撃を繰り返すものであり巧妙化・多様化している．その中には新しい攻撃手法の開発や既存の攻撃手法を一部変更した亜種によって，既存の対策では対策しきれないようにするといった方法が存在している.\par
+サイバー攻撃からWebアプリケーションを防御するシステムの一つにWeb Application Firewall\cite{WAF}(WAF)があげられる．WAFは，クライアントとWebアプリケーション間であるネットワーク上，もしくはアプリケーションがあるWebサーバに設置される．WAFはクライアントから送られたリクエストから，パラメータ中のシングルクォーテーションのような，特定パターンの検出機能に基づいてWebサイトとその利用者の通信の内容を機械的に検査する．攻撃と認められる特定のパターンを見つけると自動的に通信を遮断する．それにより脆弱性攻撃からWebサーバやWebアプリケーションを保護することができるというシステムである．WAFは直接管理できないWebアプリケーションに対策を実施したり，Webアプリケーションの修正が困難な場合であったり，Webアプリケーションへの攻撃をすぐに防御する必要があったりする際に，有効である.
+一方でWAFが有効でない場合がある.その一つがWAFには検出できない攻撃が存在することである.辞書式攻撃やパスワードリスト攻撃のようなログイン試行を繰り返すことによって権限を持っているユーザしか閲覧できないページに侵入するブルートフォース攻撃は，HTTP通信においては正常な通信であるため，一般的にWAFでは検出することができない.\par
+また，WAFは認証や権限が必要なページへの遷移が正常かどうかを判定することが難しい．
+WAFにおいて，そのような遷移が妥当であるかを調べるためのリクエストの情報として，HTTPリファラ\cite{refer}という属性が存在する．
+リファラはHTTPでのリクエストを発生させる要因となったURLのことである．
+ほとんどのWebサーバには全トラフィックログのログが存在し，ブラウザがリクエストごとに送信したHTTPリファラを記録している．リファラを用いることでクロスサイトリクエストフォージェリの対策が可能である．
+しかし，リファラ情報はプライバシーに関わることがあるため，プロキシやファイアウォールで除去することがある．この機能で除去した際，WAFがこの除去を攻撃と判断することがあり，リクエストが遮断されることによって可用性を損なう欠点がある．
+\par
+また，Webアプリケーション等のシステムはオンプレミス環境だけではなく，一部をクラウド化した環境も見られるようになっている．一部クラウド化することによって，全てオンプレミス環境だった時よりもシステム全体が大規模かつ複雑化し，把握することが難しくなる．したがって，よりWebアプリケーションと密に連携したセキュリティ機能が必要である.\par
+%動機
+これらの問題解決のための手法が，目的に示した高対話型ハニーポットを搭載したWebアプリケーションの開発である．まず，WAFで検出しづらい攻撃を検出することが可能になる．WAFで検出しづらい攻撃とはHTTP通信上では正常であるがアプリケーションに対しては攻撃である通信である．これに対して，アプリケーションから見て正常かどうかアプリケーションフレームワークで検出することができるため，より幅広い攻撃の検出・記録が可能になる.
+また，フレームワークにハニーポット機能を搭載することで，Webアプリケーション単位でセキュリティ機能を持つことが可能になるため，クラウド化によって大規模・複雑化する情報システムに対しても，システムを把握しやすい.
+したがってWebアプリケーションフレームワークにハニーポットを組み込むことで，WAFでは検出しづらい攻撃の検出を可能とし，Webアプリケーションに密接なセキュリティ機能を持たせることが可能になる.
+
+
+\section{関連研究・技術}
+\subsection{高対話型ハニーポット}
+ハニーポット\cite{honeypot}とは,ネットワーク上で攻撃者やマルウェアを誘導するために，あえて脆弱性や脆弱に見せかけた仕組みをアプリケーションやOS，もしくはそれを模倣したシステム上に用意し，攻撃者を誘導することで，攻撃活動や不正アクセスを促すシステムである．
+ハニーポットを用いる事で，攻撃者の行動や攻撃手法といった情報を収集する事が可能である．ハニーポットには，実現方法によって分類されその1つが対話型ハニーポットがある．対話型ハニーポットは，低対話型と高対話型の2種類に分類される．
+そのうち，高対話型ハニーポットは低対話型ハニーポットとは異なり,実際のマシン上でアプリケーションやOSの動作を行う．したがって，より高度な攻撃手法の取得が可能になる一方，OSコマンドやアプリケーションの全機能を利用できることから，ファイルシステムの破壊やハニーポット自体が踏み台とされるリスクがある．この事から高対話型ハニーポットを設置する際，攻撃者が他のシステムに影響を与えないようにネットワークを考慮することが必要であるため，運用が難しい．
+
+\subsection{リバースプロキシ}
+リバースプロキシ\cite{rev_proxy}とは，特定のサーバへの要求を必ず経由するように設置されたプロキシサーバ(代理サーバ)のことである．このリバースプロキシを設置することで，管理者には幾つかの利点がある．
+まず一つ目に，リバースプロキシを前置することで，直接アプリケーションサーバに対して要求することがなくなるので，サーバのセキュリティ機能を向上させることができる．
+二つ目に，要求を異なるアプリケーションサーバへルーティングすることで，負荷を複数のサーバに分散できる負荷分散という利点がある．
+三つ目に，複数のサービスを一つのサーバで実行しているよう，クライアントに見せることができるため，仮想的なサーバの統合をすることができるようになる．
+\subsection{リバースプロキシを用いた実装}
+先行研究\cite{senko}の一つにリバースプロキシを用いた高対話型ハニーポットの搭載がある．リバースプロキシをアプリケーションサーバに前置し，クライアントが要求を行うとその要求から，クライアントのIPアドレスやリクエストヘッダなどを読みこむ．
+検出パターンに基づいて攻撃と判定された場合，攻撃とみなされた要求を管理データベースに保存し，アプリケーションのためのデータベースを正規のものから擬似のものに変更することで，攻撃の影響を低減するものであった．以下にそのシステムの簡易図を示す．
+
+\begin{figure}[ht]
+\includegraphics[width= 80mm]{test_net1.png}
+\caption{リバースプロキシを用いたシステム構成の簡易図．}
+\ecaption{Previous system diagram using reverse proxy.}
+\label{fig:one}
+\end{figure}
+
+この研究において，利点は複数のアプリケーションをリバースプロキシに接続することで，複数のアプリケーションに攻撃検出機能を追加可能な点である．
+また，リバースプロキシとしての利点もある．そのうち，セキュリティ面では手前にプロキシサーバを前置することで機能を向上させることが可能という点である．
+しかし，データベースを変更する時にリクエストパスを変更する必要があり，その際にアプリケーションを理解しなければ十分に機能させることができないことがある．
+
+\section{Bottleを用いた高対話型ハニーポットを搭載したWebアプリケーションの提案}
+リバースプロキシを用いた実装は，サービスが増えた時，そのサービスをリバースプロキシに接続すれば，攻撃検出を行えることが利点であるが，アプリケーション単位でのセキュリティ機能の向上という点においては，十分ではないことがある．
+したがってこの改善案として，アプリケーションフレームワークにハニーポット機能を備えることを提案する．
+\par
+%利点と異なる点
+この機能は上記の先行研究と比較して，アプリケーションの情報を攻撃検出に利用できるという利点がある．例えば，ページ遷移情報を取得することで，不正なページへの遷移を攻撃として検知することが可能になる．
+一方で先行研究と異なる点としては，アプリケーション1つずつに設定が必要な点である．例えば，不正なページ遷移に対して攻撃を検出する場合，正しいぺージ遷移の情報がアプリケーションごとに必要である．
+
+%図
+\begin{figure*}[htb]
+\begin{center}
+\includegraphics[width= 170mm]{view2.png}
+\caption{本システムの動作概要図．}
+\ecaption{Schematic views of the system}
+\label{fig:two}
+\end{center}
+\end{figure*}
+
+\subsection{Bottleフレームワーク}
+Bottle\cite{Bottle}はPythonにおけるWebアプリケーションフレームワークの一つである．このフレームワークの特徴は動作が軽く軽量な点である．
+また，このフレームワーク自体が1ファイルによって構成されており，Pythonの標準ライブラリ以外の依存がないため扱いやすい．ルーティングはroute()デコレータを用いて行い，URLパスとコールバック関数を結びつけてくれる．
+\subsection{hook()デコレータ}
+Bottleフレームワークには，hook()デコレータが存在する．hook('before\_request')デコレータを用いることで，クライアントがリクエストを送信すると，hook()デコレータで定義した関数を毎回実行する．
+また，hook('after\_request')デコレータを用いると，ルーティング後に毎回実行する関数を呼び出す．
+\subsection{実装について}
+%before_reqestにおける実装 -> clinet_ipの取得，それに基づくsession_idの作成，sqlへの記録，攻撃判定，攻撃と判定された場合，リクエストの情報を記録し，アプリケーションDBを変更する．
+このフレームワークは，攻撃かどうかの判定として規定回数以上レスポンスコードが400番台通信を行ったクライアントを攻撃者とみなすものとした．判定が上記のものであるのは，攻撃者が，管理者以外は閲覧できないようなページに対して不正に閲覧を試みる際，管理ページであると推測されるパスを繰り返し要求することで，管理ページを閲覧する攻撃が存在すること，そしてこの攻撃はHTTP通信においては正常な通信とみなされるからである．
+リクエストを受け取った直後とその後レスポンスが生成された直後の二箇所が記録・検出部分であり，以下のような要素によって記録・検出を試みた．
+
+\subsubsection{before\_request部分}
+リクエストを受け取った直後にこのシステムは以下のように動作する．\\
+1．クライアントのIPアドレス取得\\
+2．(初回)IPアドレスに基づくセッションIDの作成\\
+3．IPアドレスとセッションIDからレコードを検索\\
+4．レコードから攻撃者かどうか確認\\
+5．(初回，3でレコードがない時)レコードの追加\\
+6．リクエストの記録・書き換え\par
+クライアントが初めてアプリケーションサーバに接続すると，クライアントの情報を取得したのち，16進32桁のランダムな値を識別子をそのIPアドレスと紐付けする(このIDの有効期限は設定ファイルから変更することができる)．その後，IPアドレスと生成したIDを元にセッション情報を管理データベースに保存する．保存するのは，クライアントのIPアドレス，紐付けられたID，攻撃者の判定(初回は0，上記の攻撃判定により攻撃者とみなされると1になる)，タイムスタンプである．
+その後，攻撃者かどうかを判定し攻撃者であれば，HTTPリクエストから情報を取得する．具体的には，HTTPリクエストのヘッダから接続メソッドとパス，POSTメソッドの場合そのパラメータを取得する．
+取得したのち，リクエストを変更することで，アプリケーションに接続しているデータベースを変更する．この時，データベースのテーブルは，変更前と変更後で同一の動作をするため，同じ構造になっている．しかし，攻撃者と判定した場合データベースには正規運用のデータベースを読み出さないため，データベース内にある情報の安全性を確保することが可能である．
+
+\subsubsection{after\_request部分}
+リクエストの解決後は以下のように動作する．\\
+1．レスポンスコードの確認\\
+2．(400番台であれば)400番台リクエストの回数を1増加させる\par
+リクエストが解決すると，レスポンスが送信される．その一つがレスポンスコードである．
+レスポンスコードはレスポンスの状態を示す3桁の整数であり，1桁目が大まかな状態，2桁目と3桁目が詳しい状態を示す数値である．
+この情報を元に攻撃かどうか判定を行い，攻撃の疑いがあると推測されれば400番台リクエストの回数というデータベースで記録している値を増加させる．
+その後，クライアントにレスポンスが送信される．
+この実装はまとめるは上ページの図2のようになる．
+
+\section{結果と今後の課題}
+\subsection{結果}
+Bottleフレームワークを用いた本システムについて以下のことが可能であることがわかった．
+\par
+まず1つ目にデータベースと接続し，データベースに情報を保存，またその情報を取り出したり上書きしたりすることが可能ということがわかった．\par
+2つ目にクライアントのIPアドレスやリクエストヘッダ，パラメータを取得できることがわかった．
+Bottleフレームワークは，これらの情報をrequest.environクラスに辞書形式で格納するため，そのクラスから必要な情報を取得することが可能である．
+レスポンスについてもリクエストをアプリケーションで解決したのちに取得可能であり，レスポンスコードはresponse.statusから，取得可能であるとわかった．\par
+3つ目に，リクエストの変換．これもrequest.environクラスを利用する．request.environ['PATH\_INFO']にクライアントが要求したパスが格納され，それを元にルーティングを行うことがわかったため，
+攻撃と判定された時，このパス情報を書き換えることで，リクエストを変換することができた．\par
+ローカル環境で実際に400番台の通信を規定回数以上行った結果，行ったクライアント(今回は自身)のIPアドレス等の情報とリクエストの情報を取得することが可能であることがわかった．また，攻撃者と推測した後，リクエストパスを変換することも可能であった．
+
+%アプリケーションとしてのviewの追加，クラウド上に設置，ログの収集，
+\subsection{今後の課題}
+\subsubsection{Web上への設置}
+現在，アプリケーション自体は実装済みだ，実際にWeb上に設置していないため，攻撃の収集にいたれていない．
+開発したアプリケーションをWeb上に設置して攻撃検出実験を行う必要がある．そして，その実験から攻撃検出方法が有効かどうか記録を収集できるかを確かめる必要がある．\par
+\subsubsection{攻撃検出手法}
+今回の攻撃検出方法をレスポンスコードが400番台であるような通信を規定回数以上行うこととしたが，これ以外にもWAFでは検出しづらくアプリケーション単位でみれば検出できる攻撃検出手法が存在すると考えられる．
+例えば不正なページ遷移に対する検出はその一つであると考えられる．
+アプリケーションが取得可能な情報である，リクエストパスとそれに対するレスポンスヘッダを用いてユーザの直前のページを記録し，アプリケーションのページ遷移をあらかじめ作成しておき照合することで攻撃を検出可能ではないかと考えている．
+その他にも様々な攻撃検出手法を実装することで有効な検出手法を確かめることが課題である．
+
+\section{おわりに}
+%まとめ
+本論文では，Webアプリケーションに高対話型ハニーポットを搭載することで，攻撃の検出と記録，そして攻撃の影響低減を行うことを提案をした．
+Bottleフレームワークを用いてローカル環境で実装を行ったところ，データベースへの接続，クライアントの情報を取得，リクエストの変換が可能だということがわかった．
+Web上で監視することで，攻撃検出を行いこのシステムの有効性を評価すること，そして攻撃検出手法の改善をすることが今後の課題である．
+\begin{acknowledgment}
+本研究は，国立研究開発法人科学技術振興機構（JST） 戦略的国際共同研究プログラム（SICORP）およびJSPS科研費 JP18K11295の助成を受けたものである．
+\end{acknowledgment}
+
+\begin{thebibliography}{10}
+\bibitem{senko} 野見山賢人，小出　洋: Webアプリケーションのための攻撃検出・防御システムHoppinの設計・実装，
+第117回プログラミング研究会  (2018).
+
+\bibitem{label8} Trend Micro Inc.: 標的型サイバー攻撃 \textbar トレンドマイクロ - Trend Micro\par
+\url{https://www.trendmicro.com/ja_jp/security-intelligence/research-reports/threat-solution/apt.html}
+
+\bibitem{label12} 澁谷芳洋, 小池英樹, 高田哲司, 安村通晃, 石井威望: 高対話型おとりシステムの運用経験に関する考察. 情報処理学会論文誌, Vol. 45 No.8. (2004). \url{https://ipsj.ixsq.nii.ac.jp/ej/?action=repository_action_common_download&item_id=10839&item_no=1&attribute_id=1&file_no=1}
+
+\bibitem{label13} T ishikawa and K sakurai: Web Application Deception Proxy, Proc. IMCOM'17, pp. 74:1-74:9 (2017).
+
+\bibitem{label14} 佐藤 聡, 佐藤 聖, 中井 央, 新城 靖: TLS/SSLプロトコルを対象にした汎用ハニーポットシステムの実装とHTTPSによる収集結果. 情報処理学会研究報告,  Vol.2015-CSEC-69 No.18, pp. 4-5 (2015)
+
+\bibitem{label15} N Provos, D McNamee, P Macrommatis, K Wang and N Modadugu: The ghost in the browser analysis of web-based malware, HotBots '07 (2007).
+
+\bibitem{WAF} 独立行政法人情報処理推進機構: Web Application Firewall（WAF）読本改訂第2版第3刷．pp. 7:3-14:12 (2011).
+\url{https://www.ipa.go.jp/files/000017312.pdf}.
+
+\bibitem{APT} 独立行政法人情報処理推進機構: テクニカルウォッチ：『新しいタイプの攻撃(APT)』に関するレポート(2010)
+\url{https://www.ipa.go.jp/files/000009366.pdf}.
+\bibitem{honeypot} Deniz Akkaya, Fabien Thalgott: Honeypot in Network Security. pp. 3:3-3:14 (2010)
+\url{http://www.diva-portal.org/smash/get/diva2:327476/fulltext01.pdf}.
+\bibitem{rev_proxy}  Nginx
+\url{https://nginx.org/en/}.
+
+\bibitem{Bottle} Marcel Hellkamp: Bottle: Python Web Framework(2019).
+\url{http://bottlepy.org/docs/dev/}.
+\bibitem{refer} The Internet Society: 「The Referer[sic] request-header field allows the client to specify […] the address (URI) of the resource from which the Request-URI was obtained […]」 RFC2616 14.36 (1999)
+\url{https://tools.ietf.org/html/rfc2616}
+
+\end{thebibliography}
+
+\end{document}
