@@ -1,0 +1,18 @@
+version: '2'
+services:
+  dnsmasq:
+    restart: always
+    image: andyshinn/dnsmasq
+    container_name: dnsmasq
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    extra_hosts:
+        - "hoge.com:127.0.0.1"
+    command: --log-facility=-
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf
+      - ./dnsmasq.log:/var/log/dnsmasq.log
+      #- ./dnsmasq.resolve.conf:/etc/resolv.conf
+    cap_add:
+      - ALL

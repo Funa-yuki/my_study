@@ -1,0 +1,78 @@
+version: '2'
+services:
+    web:
+        build:
+            context: ./
+            dockerfile: web.docker
+        volumes:
+            - ./www:/var/www
+        ports:
+            - "8000:80"
+        links:
+            - app
+    app:
+        build:
+            context: ./
+            dockerfile: app.docker
+        volumes:
+            - ./www:/var/www
+        links:
+            - mysql_true
+            - mysql_fake
+            - phpmyadmin
+            - redis
+    mysql_true:
+        restart: always
+        image: mysql:5.7
+        volumes:
+            - ./mysql:/var/lib/mysql
+        environment:
+            - "MYSQL_ROOT_PASSWORD=clomclom"
+            - "MYSQL_USER=laravel"
+            - "MYSQL_PASSWORD=clomclom"
+            - "MYSQL_DATABASE=tests"
+        ports:
+            - "3307:3306"
+    mysql_fake:
+        restart: always
+        image: mysql:5.7
+        volumes:
+            - ./mysql_f:/var/lib/mysql
+        environment:
+            - "MYSQL_ROOT_PASSWORD=clomclom"
+            - "MYSQL_USER=laravel"
+            - "MYSQL_PASSWORD=clomclom"
+            - "MYSQL_DATABASE=tests"
+        ports:
+            - "3308:3306"
+    mysql_manegement:
+        restart: always
+        image: mysql:5.7
+        volumes:
+            - ./mysql_mgnt:/var/lib/mysql
+        environment:
+            - "MYSQL_ROOT_PASSWORD=clomclom"
+            - "MYSQL_USER=mgnt"
+            - "MYSQL_PASSWORD=clomclom"
+            - "MYSQL_DATABASE=score"
+        ports:
+            - "3309:3306"
+    phpmyadmin:
+        restart: always
+        image: phpmyadmin/phpmyadmin
+        volumes:
+            - ./phpmyadmin/sessions:/sessions
+        environment:
+            - "PMA_HOST=mysql_fake"
+        links:
+            - mysql_fake
+        ports:
+            - "8880:80"
+    redis:
+        restart: always
+        image: redis:latest
+        volumes:
+            - ./redis:/data
+        ports:
+            - "6379:6379"
+        command: redis-server --appendonly yes

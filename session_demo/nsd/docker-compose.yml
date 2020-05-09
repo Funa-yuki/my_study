@@ -1,0 +1,13 @@
+on: "3"
+services:
+  nsd:
+    image: hardware/nsd-dnssec
+    container_name: nsd
+    ports:
+      - "5353:53"
+      - "5353:53/udp"
+    volumes:
+      - ./conf:/etc/nsd
+      - ./zones:/zones
+      - ./db:/var/db/nsd
+
