@@ -75,6 +75,7 @@ class Fix(object):
         return fixed_source
 
 
+#test code
 if __name__=="__main__":
     def index(request):
         print(request)

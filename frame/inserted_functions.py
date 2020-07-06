@@ -1,3 +1,5 @@
+import redis
+
 def escape_special_query(query):
     # shuusei
     print("hoge")
@@ -11,4 +13,5 @@ def reverse_print(s):
         print(s)
 
 def is_admin(request):
+    print("test is_admin")
     return True

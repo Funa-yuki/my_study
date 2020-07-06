@@ -26,13 +26,7 @@ def insert_query_checker(ast_callbacks):
     for ast_callback in ast_callbacks:
         node = ast_callback.get('ast')
         new_node = InsertQueryChecker().visit(node)
-        new_ast_callbacks.append({
-            'callback_name': ast_callback.get('callback_name'),
-            'method': ast_callback.get('method'),
-            'path': ast_callback.get('path'),
-            'path_compiled': ast_callback.get('path_compiled'),
-            'ast': new_node
-        })
+        new_ast_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
     return new_ast_callbacks
 
 # test code print -> reverse_print
@@ -42,13 +36,7 @@ def rewrite_print_to_reverse_print(ast_callbacks):
     for ast_callback in ast_callbacks:
         node = ast_callback.get('ast')
         new_node = RewriteReversePrint().visit(node)
-        new_ast_callbacks.append({
-            'callback_name': ast_callback.get('callback_name'),
-            'method': ast_callback.get('method'),
-            'path': ast_callback.get('path'),
-            'path_compiled': ast_callback.get('path_compiled'),
-            'ast': new_node
-        })
+        new_ast_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
     return new_ast_callbacks
 
 # 権限をチェックして、権限がないやつに自動で追加するやつ
@@ -56,7 +44,6 @@ def rewrite_print_to_reverse_print(ast_callbacks):
 def check_and_insert_is_admin(ast_callbacks):
     # Node: If(test=Call(func=Name(id='auth', ctx=Load()), args=[Name(id='request', ctx=Load())], keywords=[]), body=[Return(value=Str(s='Admin'))], orelse=[Return(value=Str(s='LOGIN'))])
     # から ifでauth() -> return "Admin"の情報を得る必要がある
-
     '''
     return_nodes_from_is_adminに
     if is_admin(request):
@@ -64,6 +51,7 @@ def check_and_insert_is_admin(ast_callbacks):
     を満たすast.Returnオブジェクトを探してリストに格納
     '''
     return_nodes_from_is_admin = []
+    new_callbacks = []
     for ast_callback in ast_callbacks:
         node = ast_callback.get('ast')
         ret_node = search_return_node_from_if_auth_func(node=node, auth_func_name='is_admin')
@@ -79,8 +67,19 @@ def check_and_insert_is_admin(ast_callbacks):
                         break
     #return_nodes_from_is_adminの要素と同じもののうち、if is_adminに入っていないものを探す
     for ast_callback in ast_callbacks:
-        pass
-    return ast_callbacks
+        node = ast_callback.get("ast")
+        ret_nodes = has_return_nodes(node, return_nodes_from_is_admin)
+        if not ret_nodes:
+            new_callbacks.append(ast_callback)
+        else:
+            new_node = None
+            for ret_node in ret_nodes:
+                print(ast.dump(node))
+                if not from_is_admin(node, ret_node):
+                    #if is_adminノードの追加
+                    new_node = InsertIsAdminFunc(ret_node).visit(node)
+            new_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
+    return new_callbacks
 
 ### ast Transformer Subclasses
 class InsertQueryChecker(ast.NodeTransformer):
@@ -115,18 +114,90 @@ class RewriteReversePrint(ast.NodeTransformer):
             return ast.copy_location(new_node, node)
         return node
 
+class InsertIsAdminFunc(ast.NodeTransformer):
+    def __init__(self, ret_node):
+        self.ret_node = ret_node
+
+    def visit_Return(self, node):
+        # condition は is_admin
+        if ast.dump(self.ret_node) == ast.dump(node):
+            new_node = ast.If(
+                test=ast.Call(
+                    func=ast.Name(id='is_admin', ctx=ast.Load()),
+                    args=[ast.Name(id='request', ctx=ast.Load())],
+                    keywords=[]
+                ),
+                body=[node],
+                orelse=[]
+            )
+            return ast.copy_location(new_node, node)
+        return node
+
 
 ### search functions ###
 def search_return_node_from_if_auth_func(node, auth_func_name):
     for n in ast.walk(node):
         if isinstance(n, ast.If):
-            print(ast.dump(n))
             if isinstance(n.test, ast.Call) and n.test.func.id is auth_func_name:
                 for body in n.body:
                     for b in ast.walk(body):
                         if isinstance(b, ast.Return):
                             return b
     return None
+
+# 一致するノードを探して、リストを返す
+def has_return_nodes(node, return_nodes):
+    l = []
+    for n in ast.walk(node):
+        if isinstance(n, ast.Return):
+            for ret_node in return_nodes:
+                if ast.dump(ret_node) == ast.dump(n):
+                    l.append(n)
+    return l
+
+ # ifの条件がis_admin()から、ret_nodeに行くようなノードがあるか
+def from_is_admin(node, ret_node):
+    for n in ast.walk(node):
+        if isinstance(n, ast.If) and have_is_admin_condition(n):
+            if search_ret_node(node, ret_node):
+                return True
+    return False
+
+# nodeはast.Ifでそれがis_admin()を条件にしているか
+def have_is_admin_condition(node):
+    condition = node.test
+    if isinstance(condition, ast.Call):
+        for n in ast.walk(condition):
+            if isinstance(n, ast.Name) and n.id == 'is_admin':
+                return True
+    return False
+
+
+# nodeはast.If, ノード下にret_nodeが入っている場合True
+def search_ret_node(node, ret_node):
+    body = node.body
+    for b in body:
+        for node in ast.walk(b):
+            if isinstance(node, ast.Return):
+                if ast.dump(node) == ast.dump(ret_node):
+                    print(ast.dump(node))
+                    return True
+    return False
+
+def make_new_callback(callback, new_node=None):
+    new_callback = {}
+    if new_node:
+        new_callback = {
+            'callback_name': callback.get('callback_name'),
+            'method': callback.get('method'),
+            'path': callback.get('path'),
+            'path_compiled': callback.get('path_compiled'),
+            'ast': new_node
+        }
+        return new_callback
+    return callback
+
+
 
 ### test code
 if __name__=="__main__":
