@@ -1,4 +1,3 @@
-import redis
 
 def escape_special_query(query):
     # shuusei
@@ -12,6 +11,13 @@ def reverse_print(s):
         print("Not Str")
         print(s)
 
-def is_admin(request):
-    print("test is_admin")
-    return True
+# is_adminを正しく動かす
+# is_adminはlogin試行が正しくできているかの話？
+# set_cookieはまたあとで、今回はidとpasswordを毎回調べる
+def is_admin(id=None, password=None):
+    if id is None or password is None:
+        return False
+
+    if id is "admin" and password is "admin_pass":
+        return True
+    return False

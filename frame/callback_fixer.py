@@ -5,6 +5,9 @@ import ast
 import inspect
 import copy
 
+#server.pyのimportをここに適用させてあげる必要がある？
+from bottle import jinja2_template as tmpl
+
 class Fix(object):
     def __init__(self):
         self.fixed_routes = []

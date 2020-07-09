@@ -7,12 +7,13 @@ def index(request):
 
 @app.route("^/login$", "GET")
 def login(request):
-    print(is_admin(request))
     return "LOGIN"
 
 @app.route("^/login$", "POST")
 def do_login(request):
-    if is_admin(request):
+    id = "admin"
+    password = "admin_pass"
+    if is_admin(id, password):
         return "ADMIN"
     else:
         return "LOGIN"

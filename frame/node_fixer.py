@@ -120,6 +120,7 @@ class InsertIsAdminFunc(ast.NodeTransformer):
 
     def visit_Return(self, node):
         # condition は is_admin
+        # 本当はorelse=[ast.Return(loginページ)]にする必要がある
         if ast.dump(self.ret_node) == ast.dump(node):
             new_node = ast.If(
                 test=ast.Call(
@@ -128,7 +129,7 @@ class InsertIsAdminFunc(ast.NodeTransformer):
                     keywords=[]
                 ),
                 body=[node],
-                orelse=[]
+                orelse=[ast.Return(value=ast.Str(s='LOGIN'))]
             )
             return ast.copy_location(new_node, node)
         return node
