@@ -1,7 +1,18 @@
+import re
 
+# queryを修正する関数（dropとかなくす）
 def escape_special_query(query):
-    # shuusei
     print("hoge")
+    drop_patturn = r"drop"
+    select_patturn = r"select"
+    no_where_patturn = r"select.'+;.*--.+where"
+    if re.match(drop_patturn, query):
+        print("Drop Patturn Detected")
+        return ""
+    if re.match(select_patturn, query):
+        if re.search(no_where_patturn, query):
+            print("No Where Clause Patturn Detected")
+            return ""
     return query
 
 def reverse_print(s):
