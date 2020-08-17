@@ -14,7 +14,6 @@ def access(request):
     import sqlite3
     conn = sqlite3.connect("test.sqlite3")
     cur = conn.cursor()
-    #request query
     action = request.forms.get('action')
     name = request.forms.get('name')
     password = request.forms.get('password')
@@ -24,8 +23,6 @@ def access(request):
         print(query)
         cur.execute(query)
         data = cur.fetchone()
-        #print(data)
-        # have xss vuln, so fix it if able.
         return tmpl("access.html", action=action,name=name, password=password)
     return tmpl("access.html", action=action,name=name, password=password)
 
