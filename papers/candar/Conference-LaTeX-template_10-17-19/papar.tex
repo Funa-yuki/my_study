@@ -50,15 +50,13 @@ koide@cc.kyushu-u.ac.jp}
 \maketitle
 
 \begin{abstract}
-Web application security is an essential component of any web-based system or business.
-As the growth of the Internet exposes web properties to different attacks, there is still a need to propose a secure framework for web applications.
-To fulfill this, we propose a web application framework which not only analyzes the source code implemented by web developers, also detects the vulnerability in the source code dynamically.
-Although a lot of research works have already proposed detection of vulnerability in web application attacks, but those were not fully detected because their methods did not use the information of the web application. Therefore, we propose a method which analyzes the source code of a web application, and then modifies it, in addition, it has a detection method of an application’s vulnerability that is difficult to detect.
-According to our implementation and experiments, it is possible to detect attacks, which have been considered difficult to detect, against authentication leaks and SQL injection attacks using dynamic queries.
-%This paper provides a web application framework which has features that analyzes the source code implemented by web application developers and detects vulnerability in the source code dynamically.
-%Previous methods can detect vulnerability attacks limitedly because the methods do not use information in the web application.
-%The function of web application framework  we propose analyzes source code of a web application and modifies it, if necessary, to detect vulnerability attacks which is been difficult to detect.
-%Our implementation and experiments show that it is possible to detect attacks against authentication leaks and SQL injection attacks using dynamic queries, which have been difficult to detect.
+Web application security is one of essential components of any web-based systems.
+As becoming popular of the Internet makes many web sites be attacked by many kinds of  attacks.
+So, we have to propose a secure framework for web applications.
+For this reason, we have to propose a web application framework which not only analyzes the source code implemented by web developers, also it can detects the vulnerabilities in the source code dynamically.
+Although a lot of research works have already proposed detection methods of vulnerabilities in web application attacks, but those are not fully detected because their methods do not use the information of the web applications.
+Therefore, we propose a new method which analyzes the source code of a web application, and then modifies it if needed, in addition, our method has a detection method of an application ’s vulnerabilities that are difficult to detect by previous methods.
+According to our implementation and experiments, it is possible to detect actual attacks, which have been considered difficult to detect, against authentication leaks and SQL injection attacks using dynamic queries.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -80,8 +78,8 @@ Some web application frameworks provide developers unit test tools.
 Using these tools, application developers could analyze their callback functions dynamically.
 However application developers must describe various test data, which increase development time and workload, and it is difficult to describe test data for each vulnerability.
 
-A method to reduce the vulnerability in web applications is to use web application firewall (WAF)\cite{kruegel2003anomaly, epp2017anomaly}.
-WAF is a system to protect web applications from vulnerable attacks like cross site scripting (XSS) or SQL injection (SQLi).
+A method to reduce the vulnerability in web applications is to use web application firewall (WAF)\cite{kruegel2003anomaly, epp2017anomaly, makiou2014improving, krueger2010tokdoc, ito2018web}.
+WAF is a system to protect web applications from vulnerable attacks like cross site scripting (XSS)\cite{subramaniyaswamy2018securing} or SQL injection (SQLi)\cite{halfond2005amnesia}.
 WAF is usually placed between the client and the web application.
 WAF receives requests from clients and verify requests whether the incoming requests are attacks or not.
 If WAF detects an attack request, the request is blocked or sanitized.
@@ -121,7 +119,7 @@ In section 6, we describe about result of the experiment.
 In section 7, conclusions are about the result.
 \section{Background}
 % webアプリケーションフレームワーク自動サニタイズ弱い
-Web application frameworks including many libraries can help developers in improving their applications efficiently.
+Web application frameworks\cite{chaudhuri2010symbolic} including many libraries can help developers in improving their applications efficiently.
 Regarding security, web application frameworks provide security helper functions which are methods to secure callback functions or to add proper sanitization code to the web applications automatically, which is called auto-sanitization\cite{weinberger2011systematic}.
 Security helper functions can hide complexities from application developers.
 These security helper functions allow web application developers to efficiently develop secure applications.
@@ -222,7 +220,7 @@ def index(request):
 The module we are importing in the first line(Code \ref{code:callback}) is our implementation of the web application framework.
 This module provides the application developer with functions such as callback functions, routing and template functions, similar to general web application frameworks.
 Regarding the second line(Code \ref{code:callback}), the route method stores index function implemented in the third line(Code \ref{code:callback}) and after in the web application framework.
-The @ in the second line(Code \ref{code:decorator}) is a description method called a decorator, and the following two source codes are equivalent expressions.
+The @ in the second line(Code \ref{code:callback}) is a description method called a decorator, and the following two source codes are equivalent expressions.
 
 \begin{lstlisting}[caption={Python decorator.}, label=code:decorator, captionpos=b]
 @decorator
@@ -230,7 +228,7 @@ The @ in the second line(Code \ref{code:decorator}) is a description method call
     ...
 \end{lstlisting}
 
-\begin{lstlisting}[caption={Source code synonymous with Code \ref{code:decorator}.}, captionpos=b]
+\begin{lstlisting}[caption={Source code synonymous with Code \ref{code:decorator2}.}, captionpos=b]
 def func():
   ...
 func = decorator(func)
@@ -265,7 +263,7 @@ Then the function parses and modifies the AST for each element, and returns modi
 \caption{Modification callback functions.}
 \label{fig:modification}
 \end{figure*}
-An example of the source code of the vulnerability handling function is shown below.
+An example of the source code of the vulnerability handling function is shown below(Code \ref{code:handling-example}).
 \begin{lstlisting}[caption={An example of a vulnerability handling function}, label=code:handling-example, captionpos=b]
 @node_fixer.add
 def modifier(ast_callbacks):
@@ -308,8 +306,8 @@ By inserted an invalid character string in the request parameter, the instructio
 This causes tampering with the database and unauthorized deletion of data.
 One of the measures of SQLi is to analyze SQL statements.
 
-The following source code has a SQLi vulnerability.
-\begin{lstlisting}[caption={A vulnerable function which has a SQL injection.}, label=code:decorator, captionpos=b]
+The following source code(Code \ref{code:sqli_callback}) has a SQLi vulnerability.
+\begin{lstlisting}[caption={A vulnerable function which has a SQL injection.}, label=code:sqli_callback, captionpos=b]
 @app.route("^/access$", "POST")
 def access(request):
   import sqlite3
@@ -328,31 +326,21 @@ def access(request):
     cur.execute(query)
   return tmpl("access.html", action=action)
 \end{lstlisting}
-%In the code above, the first line(Code \ref{code:decorator}) is the decorator that stores the callback function in the framework, and the second line and subsequent access function is the callback function that is stored.
-%The argument of access() function, named request is a dictionary data which is stored request parameter.
-%The line 3 to 5(Code \ref{code:decorator}) are the preparations for using SQL.
-%From line 6 to 8, parameters are fetched from the request form, and lines 9 and 11 use those forms to build the SQL query.
-
-In the code above(Code \ref{code:decorator}), the line 1 is the decorator that stores the callback function in the framework, the subsequent access function in the second line is the callback function which will be stored in the framework.
+In the code above(Code \ref{code:sqli_callback}), the line 1 is the decorator that stores the callback function in the framework, the subsequent access function in the second line is the callback function which will be stored in the framework.
 The argument named request of the access function is a dictionary data which stores the parameters of the request argument.
-The preparations for creating SQL database is presented from line 3 to 5.
-After that, from line 6 to 8, parameters are fetched from the request form, and these forms are used for building the SQL queries which are presented from line 9 to 11.
-The variables we used in fetching from the request are ``action'', ``name'', and “password” from line 6 to 8. The “action” is the sql command, “name” is the username in the request, and “password” is the users’ password.
-The cur.execute() method from line 13 to 15 will execute the queries which we extracted from the above variables in the database.
-at line 10, we check the condition of variable “action”. If the action is ‘select’, cur.execute(query) at line 12 will be executed.
-Next, at line 13, fetchone() method which is a built-in function of sqlite3 is implemented. This method will return the result of executed queries in a tuple. The returned result will be stored in a variable “data”. The third element of data is “phone number” and the fourth is “mail\_address”.
-At line 14, this “access” calllback function uses a template method tmpl(), jinja2 template that will return elements which are “action”, “phone number”, and “email address” retrieved from the database to users.
-As we can see that this source code is vulnerable, at lines 9 and 11, to the query which is created by directly using the request parameters.
-Therefore, we can address this vulnerability with the following vulnerability handling function.
+The preparations for creating SQL database is presented from line 3 to 5(Code \ref{code:sqli_callback}).
+After that, from line 6 to 8(Code \ref{code:sqli_callback}), parameters are fetched from the request form, and these forms are used for building the SQL queries which are presented from line 9 to 11(Code \ref{code:sqli_callback}).
+The variables we used in fetching from the request are ``action'', ``name'', and “password” from line 6 to 8(Code \ref{code:sqli_callback}). The “action” is the sql command, “name” is the username in the request, and “password” is the users’ password.
+The cur.execute() method from line 13 to 15(Code \ref{code:sqli_callback}) will execute the queries which we extracted from the above variables in the database.
+at line 10(Code \ref{code:sqli_callback}), we check the condition of variable “action”. If the action is ‘select’, cur.execute(query) at line 12(Code \ref{code:sqli_callback}) will be executed.
+Next, at line 13(Code \ref{code:sqli_callback}), fetchone() method which is a built-in function of sqlite3 is implemented.
+This method will return the result of executed queries in a tuple.
+The returned result will be stored in a variable “data”. The third element of data is “phone number” and the fourth is “mail\_address”.
+At line 14(Code \ref{code:sqli_callback}), this “access” calllback function uses a template method tmpl(), jinja2 template that will return elements which are “action”, “phone number”, and “email address” retrieved from the database to users.
+As we can see that this source code is vulnerable, at lines 9 and 11(Code \ref{code:sqli_callback}), to the query which is created by directly using the request parameters.
+Therefore, we can address this vulnerability with the following vulnerability handling function(Code \ref{sqli_handling}).
 
-%The cur.execute() method on the 12th and 16th lines is a method to have the query executed in the database.
-%The cur method on the 12th line is executed when the select command is executed.
-%The 13th line's cur.fetchone method returns the result of executed the query by the database.
-%In this result, The second element of variable data is the telephone number, and third element of variable data is the email address.
-%Then, at line 15, this callback function use the template function ``tmpl'' to return the action and the phone number and email address retrieved from the database to the user.
-%This source code is vulnerable in that the query is created by directly using the request parameters at lines 9 and 11.
-%The vulnerability was addressed with the following vulnerability handling function.
-\begin{lstlisting}[caption={A vulnerable handling function which address a SQL injection.}, label=code:decorator, captionpos=b]
+\begin{lstlisting}[caption={A vulnerable handling function which address a SQL injection.}, label=code:sqli_handling, captionpos=b]
 @node_fixer.add
 def insert_query_checker(ast_callbacks):
     new_ast_callbacks = []
@@ -384,26 +372,17 @@ class InsertQueryChecker(ast.NodeTransformer):
               return ast.copy_location(new_node, node)
     return node
 \end{lstlisting}
-To explain the above code, the vulnerability handling function which can modify the node is implemented from line 2 to 8.
-The decorator on line 1 stores this function in our framework.
-The class InsertQueryChecker searches and modifies the callback function node on line 6.
+To explain the above code(Code \ref{code:sqli_handling}), the vulnerability handling function which can modify the node is implemented from line 2 to 8.
+The decorator on line 1(Code \ref{code:sqli_handling}) stores this function in our framework.
+The class InsertQueryChecker searches and modifies the callback function node on line 6(Code \ref{code:sqli_handling}).
 Then, visit\_Call() method is called when the node class name is Call which is a subclass of AST.
 Nodes with the class name Call are function and method of nodes.
-From line 14 to 17 describes the implementations of the node to be modified and their details.
+From line 14 to 16(Code \ref{code:sqli_handling}) describes the implementations of the node to be modified and their details.
 The instruction is dropped and when “where” query is commented out in the select instruction.
-
-%Explaining the above code, lines 2 to 8 are the vulnerability handling functions that modify the node, and the decorator on line 1 stores this function in our framework.
-%The class on and after line 10 searches and modify the callback function node on line 6.
-%The 12th visit\_Call method is called when the node class name is Call.
-%Nodes with the class name Call are function and method nodes.
-%Lines 14 to 17 describe the conditions of the node to be modified and the modification details.
-%In this implementation, when the cur.execute method is called, the argument is modified and changed to the execution result of the function escape\_special\_query.
-%The escape\_special\_query function deletes a query as an invalid query when the query instruction is drop and when the where clause is commented out in the select instruction.
-%This makes these instructions unavailable to the user.
 
 \subsection{Modifying Lack of Authentication Control}
 In this section, we show an example of a callback function which has an authorization control vulnerability.
-\begin{lstlisting}[caption={A vulnerable function which has an authentication leak.}, label=code:decorator, captionpos=b]
+\begin{lstlisting}[caption={A vulnerable function which has an authentication leak.}, label=code:auth_leak_callback, captionpos=b]
 @app.route("^/login$", "POST")
 def do_login(request):
     id = request.params["ID"]
@@ -417,15 +396,12 @@ def do_login(request):
 def home(request):
     return "ADMIN_PAGE"
 \end{lstlisting}
-The callback function named do\_login() takes request as an argument.
+The callback function named do\_login() takes request as an argument(Code \ref{code:auth_leak_callback}).
 In order to return “ADMIN\_PAGE” to admin, it is required that id should be “admin” and password should be “admin\_pass”.
-On the other hand, the path “/home” at line 10 is vulnerable in which all application users can see it.
-To address this vulnerability, we implement the following source code.
+On the other hand, the path “/home” at line 10(Code \ref{code:auth_leak_callback}) is vulnerable in which all application users can see it.
+To address this vulnerability, we implement the following source code(Code \ref{code:auth_leak_handling}).
 
-%In the callback function called do\_login, it is required that id is ``admin'' and password is ``admin\_pass'' as a condition to return ``ADMIN\_PAGE''.
-%On the other hand, the path ``/home'' is vulnerable in that the all application users can see it.
-%We addressed the vulnerability with following source code.
-\begin{lstlisting}[caption={A vulnerable function which address an authentication leak.}, label=code:decorator, captionpos=b]
+\begin{lstlisting}[caption={A vulnerable function which address an authentication leak.}, label=code:auth_leak_handling, captionpos=b]
 @node_fixer.add
 def check_and_insert_is_admin(ast_callbacks):
   return_nodes_from_is_admin = []
@@ -456,16 +432,11 @@ def check_and_insert_is_admin(ast_callbacks):
       new_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
   return new_callbacks
 \end{lstlisting}
-The callback function named do\_login() takes request as an argument. In order to return “ADMIN\_PAGE” to admin, it is required that id should be “admin” and password should be “admin\_pass”.
-On the other hand, the path “/home” at line 10 is vulnerable in which all application users can see it. To address this vulnerability, we implement the following source code.
-The codes of “for” loop from line 5 to 16 find the node of the callback function that uses is\_admin() function which checks whether the admin or users. This function is a helper function provided by the framework and returns “TRUE” if id and password are matched. Otherwise, it will return “FALSE”.
-Callback function nodes that use this is\_admin() function are detected by line 7, search\_return\_node\_from\_if\_auth\_func() function and stored the result a list variable “return\_nodes\_from\_is\_admin”.
-From line 18 to the rest of source code, the nodes stored in the list variable “return\_nodes\_from\_is\_admin” which are not authenticated by is\_admin() function will be changed to nodes which use is\_admin() function as an authenticated condition.
+The codes of “for” loop from line 5 to 16(Code \ref{code:auth_leak_handling}) find the node of the callback function that uses is\_admin() function which checks whether the admin or users.
+This function is a helper function provided by the framework and returns “TRUE” if id and password are matched. Otherwise, it will return “FALSE”.
+Callback function nodes that use this is\_admin() function are detected by line 7(Code \ref{code:auth_leak_handling}), search\_return\_node\_from\_if\_auth\_func() function and stored the result a list variable “return\_nodes\_from\_is\_admin”.
+From line 18 to the rest of source code(Code \ref{code:auth_leak_handling}), the nodes stored in the list variable “return\_nodes\_from\_is\_admin” which are not authenticated by is\_admin() function will be changed to nodes which use is\_admin() function as an authenticated condition.
 
-%First, in the for loop from line 5 to line 16, this function find the node of the callback function that uses the is\_admin function.
-%Callback function nodes that use the is \_admin function are detected by the search \_from \_is \_admin function and stored in return \_nodes \_from \_is \_admin.
-%The is\_admin function is a helper provided by the framework and returns True if the ID and password match, False otherwise.
-%From line 18 onwards, the nodes stored in return \_nodes \_from \_is \_admin that are not conditioned to the is \_admin function are changed to nodes that use the is \_admin function as a condition.
 %In detail, 付録のnode\_fixer.pyを参照してください。
 
 \section{Result}
@@ -487,6 +458,8 @@ To detect a wide range of vulnerabilities, it is necessary to increase the vulne
 We think that our framework can deal with a wide range of vulnerability by properly applying these functions to each callback function.
 We believe that future improvements will make it easier to implement secure applications.
 
+\section*{Acknowledgement}
+This study is supported by Hitachi Systems.
 
 \bibliography{IEEEabrv, ref.bib}
 \bibliographystyle{IEEEtran}

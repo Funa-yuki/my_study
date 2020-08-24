@@ -32,6 +32,38 @@ N.~Epp, R.~Funk, C.~Cappo, and S.~Lorenzo-Paraguay, ``Anomaly-based web
   \emph{Workshop Regional de Seguran{\c{c}}a da Informa{\c{c}}{\~a}o e de
   Sistemas Computacionais}, 2017.
 
+\bibitem{makiou2014improving}
+A.~Makiou, Y.~Begriche, and A.~Serhrouchni, ``Improving web application
+  firewalls to detect advanced sql injection attacks,'' in \emph{2014 10th
+  International Conference on Information Assurance and Security}.\hskip 1em
+  plus 0.5em minus 0.4em\relax IEEE, 2014, pp. 35--40.
+
+\bibitem{krueger2010tokdoc}
+T.~Krueger, C.~Gehl, K.~Rieck, and P.~Laskov, ``Tokdoc: A self-healing web
+  application firewall,'' in \emph{Proceedings of the 2010 ACM Symposium on
+  Applied Computing}, 2010, pp. 1846--1853.
+
+\bibitem{ito2018web}
+M.~Ito and H.~Iyatomi, ``Web application firewall using character-level
+  convolutional neural network,'' in \emph{2018 IEEE 14th International
+  Colloquium on Signal Processing \& Its Applications (CSPA)}.\hskip 1em plus
+  0.5em minus 0.4em\relax IEEE, 2018, pp. 103--106.
+
+\bibitem{subramaniyaswamy2018securing}
+V.~Subramaniyaswamy, K.~G. Venkata, and L.~Naladala, ``Securing web
+  applications from malware attacks using hybrid feature extraction,'' 2018.
+
+\bibitem{halfond2005amnesia}
+W.~G. Halfond and A.~Orso, ``Amnesia: analysis and monitoring for neutralizing
+  sql-injection attacks,'' in \emph{Proceedings of the 20th IEEE/ACM
+  international Conference on Automated software engineering}, 2005, pp.
+  174--183.
+
+\bibitem{chaudhuri2010symbolic}
+A.~Chaudhuri and J.~S. Foster, ``Symbolic security analysis of ruby-on-rails
+  web applications,'' in \emph{Proceedings of the 17th ACM conference on
+  Computer and communications security}, 2010, pp. 585--594.
+
 \bibitem{weinberger2011systematic}
 J.~Weinberger, P.~Saxena, D.~Akhawe, M.~Finifter, R.~Shin, and D.~Song, ``A
   systematic analysis of xss sanitization in web application frameworks,'' in
