@@ -1,4 +1,4 @@
-This is e-pTeX, Version 3.14159265-p3.8.1-180226-2.6 (utf8.euc) (TeX Live 2018) (preloaded format=platex 2019.1.17)  21 AUG 2020 00:19
+This is e-pTeX, Version 3.14159265-p3.8.1-180226-2.6 (utf8.euc) (TeX Live 2018) (preloaded format=platex 2019.1.17)  20 OCT 2020 11:24
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -592,11 +592,11 @@ LaTeX Font Info:    Font shape `T1/ptm/bx/it' in size <24> not available
 \c@lstlisting=\count129
 
 LaTeX Font Warning: Font shape `JT1/mc/m/sc' undefined
-(Font)              using `JT1/mc/m/n' instead on input line 66.
+(Font)              using `JT1/mc/m/n' instead on input line 63.
 
 
 LaTeX Font Warning: Font shape `JY1/mc/m/sc' undefined
-(Font)              using `JY1/mc/m/n' instead on input line 66.
+(Font)              using `JY1/mc/m/n' instead on input line 63.
 
 [1
 
@@ -606,21 +606,24 @@ File: ./diagrams/slide1.jpg Graphic file (type eps)
  <./diagrams/slide1.jpg> [2]
 File: ./diagrams/slide3.jpg Graphic file (type eps)
  <./diagrams/slide3.jpg>
-LaTeX Font Info:    Try loading font information for TS1+ptm on input line 216.
+LaTeX Font Info:    Try loading font information for TS1+ptm on input line 213.
  (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
 
-LaTeX Warning: Reference `code:decorator2' on page 3 undefined on input line 235.
+LaTeX Warning: Reference `code:decorator2' on page 3 undefined on input line 232.
 
 [3]
 File: ./diagrams/slide4.jpg Graphic file (type eps)
  <./diagrams/slide4.jpg> [4]
 
-LaTeX Warning: Reference `sqli_handling' on page 5 undefined on input line 341.
+LaTeX Warning: Reference `sqli_handling' on page 5 undefined on input line 338.
 
 [5]
-Overfull \hbox (8.00244pt too wide) in paragraph at lines 411--412
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (8.00244pt too wide) in paragraph at lines 408--409
 [][] 
  []
 
@@ -656,10 +659,10 @@ LaTeX Warning: There were undefined references.
 Here is how much of TeX's memory you used:
  6625 strings out of 493226
  90611 string characters out of 6144095
- 542107 words of memory out of 5000000
+ 547107 words of memory out of 5000000
  10556 multiletter control sequences out of 15000+600000
  105829 words of font info for 137 fonts, out of 8000000 for 9000
  929 hyphenation exceptions out of 8191
  27i,8n,40p,818b,1650s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on papar.dvi (7 pages, 63128 bytes).
+Output written on papar.dvi (7 pages, 62728 bytes).

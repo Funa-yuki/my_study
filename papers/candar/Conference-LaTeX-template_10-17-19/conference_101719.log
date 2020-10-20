@@ -1,4 +1,4 @@
-This is e-pTeX, Version 3.14159265-p3.8.1-180226-2.6 (utf8.euc) (TeX Live 2018) (preloaded format=platex 2019.1.17)  19 AUG 2020 15:44
+This is e-pTeX, Version 3.14159265-p3.8.1-180226-2.6 (utf8.euc) (TeX Live 2018) (preloaded format=platex 2019.1.17)  13 OCT 2020 01:27
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -545,15 +545,6 @@ File: omsptm.fd
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 243.
  [2]
-./conference_101719.tex:247: Undefined control sequence.
-l.247 \acknowledgement
-                      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -579,4 +570,4 @@ Here is how much of TeX's memory you used:
  929 hyphenation exceptions out of 8191
  30i,11n,35p,1865b,423s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on conference_101719.dvi (3 pages, 21164 bytes).
+Output written on conference_101719.dvi (3 pages, 21104 bytes).
