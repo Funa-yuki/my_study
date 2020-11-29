@@ -128,27 +128,33 @@ class SanitizeReturnValueUsingFormat(ast.NodeTransformer):
     def visit_Return(self, node):
         new_args = []
         new_keywords = []
+        new_value = []
         if isinstance(node.value, ast.Call):
             if isinstance(node.value.func, ast.Attribute):
                 if node.value.func.attr == 'format':
+                    print(ast.dump(node))
                     for arg in node.value.args:
                         new_arg = ast.Call(
                             func='escape_xss_characters',
                             args=[arg],
                             ctx=ast.Load(),
                         )
-                        print(ast.dump(new_arg))
                         new_args.append(new_arg)
                     for keyword in node.value.keywords:
+                        #keyword の引数にcall(escape_xss_charactersを上書き)
                         new_keyword = ast.keyword(
                             arg = keyword.arg,
                             value = keyword.value,
                         )
-                        print(ast.dump(keyword))
                         new_keywords.append(new_keyword)
-                    new_node = ast.Return(
-                        value=node.value
-                    )
+                    if new_args:
+                        print(new_args)
+                    print()
+
+                    if new_keywords:
+                        print(new_keywords)
+                    print()
+                    new_node = node
                     return ast.copy_location(new_node, node)
         return node
 
