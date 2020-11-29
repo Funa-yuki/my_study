@@ -39,6 +39,16 @@ def rewrite_print_to_reverse_print(ast_callbacks):
         new_ast_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
     return new_ast_callbacks
 
+
+@node_fixer.add
+def rewrite_for_xss(ast_callbacks):
+    new_ast_calbacks = []
+    for ast_callback in ast_callbacks:
+        node = ast_callback.get('ast')
+        new_node = SanitizeReturnValueUsingFormat().visit(node)
+    return ast_callbacks
+
+
 # 権限をチェックして、権限がないやつに自動で追加するやつ
 @node_fixer.add
 def check_and_insert_is_admin(ast_callbacks):
@@ -113,6 +123,35 @@ class RewriteReversePrint(ast.NodeTransformer):
             )
             return ast.copy_location(new_node, node)
         return node
+
+class SanitizeReturnValueUsingFormat(ast.NodeTransformer):
+    def visit_Return(self, node):
+        new_args = []
+        new_keywords = []
+        if isinstance(node.value, ast.Call):
+            if isinstance(node.value.func, ast.Attribute):
+                if node.value.func.attr == 'format':
+                    for arg in node.value.args:
+                        new_arg = ast.Call(
+                            func='escape_xss_characters',
+                            args=[arg],
+                            ctx=ast.Load(),
+                        )
+                        print(ast.dump(new_arg))
+                        new_args.append(new_arg)
+                    for keyword in node.value.keywords:
+                        new_keyword = ast.keyword(
+                            arg = keyword.arg,
+                            value = keyword.value,
+                        )
+                        print(ast.dump(keyword))
+                        new_keywords.append(new_keyword)
+                    new_node = ast.Return(
+                        value=node.value
+                    )
+                    return ast.copy_location(new_node, node)
+        return node
+
 
 class InsertIsAdminFunc(ast.NodeTransformer):
     def __init__(self, ret_node):

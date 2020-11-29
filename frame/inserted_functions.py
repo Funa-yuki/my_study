@@ -32,3 +32,10 @@ def is_admin(id=None, password=None):
     if id is "admin" and password is "admin_pass":
         return True
     return False
+
+#
+def escape_xss_characters(s):
+    if isinstance(s, str):
+        return "Escape is over :)"
+    else:
+        return s

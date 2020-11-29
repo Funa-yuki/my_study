@@ -9,7 +9,7 @@ class Request:
     MEMFILE_MAX = 102400
     def __init__(self, environ=None, charset='utf-8'):
         self.environ = None if environ is None else environ
-        self._body = None
+        #self._body = None
         self.charset = charset
 
     @property
@@ -46,6 +46,7 @@ class Request:
     def query(self):
         return parse_qs(urlunquote(self.environ['QUERY_STRING']))
 
+    '''
     @property
     def _body(self):
         try:
@@ -66,6 +67,7 @@ class Request:
         self.environ['wsgi.input'] = body
         body.seek(0)
         return body
+        '''
 
     @property
     def text(self):

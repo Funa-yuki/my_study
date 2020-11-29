@@ -1,17 +1,17 @@
 # Fdb version 3
-["bibtex papar"] 1603160668 "papar.aux" "papar.bbl" "papar" 1603160670
+["bibtex papar"] 1603179693 "papar.aux" "papar.bbl" "papar" 1603179695
   "/usr/local/texlive/2018/texmf-dist/bibtex/bib/IEEEtran/IEEEabrv.bib" 1480098425 20898 a5d2167c380db7dfff810b085c77ed63 ""
   "/usr/local/texlive/2018/texmf-dist/bibtex/bst/IEEEtran/IEEEtran.bst" 1480098433 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "papar.aux" 1603160669 4215 36940e84ee0dda7c82d4999147b34f26 ""
+  "papar.aux" 1603179694 4215 36940e84ee0dda7c82d4999147b34f26 ""
   "ref.bib" 1597936749 2770 efa34d6c6b7932fefeb5094687b55539 ""
   (generated)
-  "papar.blg"
   "papar.bbl"
-["dvipdf"] 1603160669 "papar.dvi" "papar.pdf" "papar" 1603160670
-  "papar.dvi" 1603160669 62728 4e88107b22716daec64bf6823e675f0d "latex"
+  "papar.blg"
+["dvipdf"] 1603179694 "papar.dvi" "papar.pdf" "papar" 1603179695
+  "papar.dvi" 1603179694 62744 11406fb05133658642d5bf385c4ccc52 "latex"
   (generated)
   "papar.pdf"
-["latex"] 1603160668 "papar.tex" "papar.dvi" "papar" 1603160670
+["latex"] 1603179693 "papar.tex" "papar.dvi" "papar" 1603179695
   "/usr/local/texlive/2018/texmf-dist/fonts/map/fontname/texfonts.map" 1511824771 3332 103109f5612ad95229751940c61aada0 ""
   "/usr/local/texlive/2018/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1480098689 2172 fd0c924230362ff848a33632ed45dc23 ""
   "/usr/local/texlive/2018/texmf-dist/fonts/tfm/adobe/times/ptmb8t.tfm" 1480098689 6880 f19b8995b61c334d78fc734065f6b4d4 ""
@@ -77,10 +77,10 @@
   "diagrams/slide1.jpg" 1597028865 40681 d5feae2ae6bed9f80b98ba737270627f ""
   "diagrams/slide3.jpg" 1597028865 28717 dafeb30d086c6624d4c8f69b07d85738 ""
   "diagrams/slide4.jpg" 1597031994 29062 3da8f6d6496dc93bc3524c201b2d57c7 ""
-  "papar.aux" 1603160669 4215 36940e84ee0dda7c82d4999147b34f26 ""
-  "papar.bbl" 1603160668 3218 7eb7a80e683b34f325bbe3c38fe79a3c "bibtex papar"
-  "papar.tex" 1603160663 34541 4e2b02dd0bce7dc31bf15f3401e137d6 ""
+  "papar.aux" 1603179694 4215 36940e84ee0dda7c82d4999147b34f26 ""
+  "papar.bbl" 1603179693 3218 7eb7a80e683b34f325bbe3c38fe79a3c "bibtex papar"
+  "papar.tex" 1603179690 34552 c03179ad08773abc44971a96a922499e ""
   (generated)
+  "papar.log"
   "papar.dvi"
   "papar.aux"
-  "papar.log"

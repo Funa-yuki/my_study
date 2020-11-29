@@ -12,6 +12,7 @@ import inspect
 import re
 from wsgiref.simple_server import make_server
 from wsgiref.headers import Headers
+import time
 
 class App:
     def __init__(self):
@@ -25,12 +26,17 @@ class App:
 
     def run(self, port=8000):
         #fix callback functions
+        starting_time = time.time()
         self.router.fix()
+        overhead = time.time() - starting_time
+        print("starting overhead is {} sec".format(overhead))
+
         with make_server('', port, app) as httpd:
             print('Serving HTTP on port {}'.format(port))
             httpd.serve_forever()
 
     def __call__(self, env, start_response):
+        print("hoge")
         request = Request(env)
         response = Response()
         # ユーザごとの動きの検出とそのためのインスタンスの探索, 作成
