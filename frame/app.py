@@ -36,7 +36,6 @@ class App:
             httpd.serve_forever()
 
     def __call__(self, env, start_response):
-        print("hoge")
         request = Request(env)
         response = Response()
         # ユーザごとの動きの検出とそのためのインスタンスの探索, 作成

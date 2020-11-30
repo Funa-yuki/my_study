@@ -5,18 +5,7 @@ from bottle import jinja2_template
 
 @app.route("^/$")
 def callback1(request):
-    html = '''
-    <html>
-        <head>
-            <title>page for xss</title>
-        </head>
-        <body>
-            Hello, {name}.<br>
-            Content is {content}.<br>
-        </body>
-    </html>
-    '''
-    return html.format(name=request.query["name"][0], content=request.query["content"][0])
+    return escape_xss_characters("hogehogecall1")
 
 @app.route("^/two$")
 def callback2(request):
@@ -46,10 +35,7 @@ def callback3(request):
         </body>
     </html>
     '''
-    def reverse(s):
-        return s[::-1]
-
-    return html.format(reverse(request.query["name"][0]), reverse(reverse(request.query["content"][0])))
+    return html.format("sobasoba", "subusubu")
 
 # func(html.format(...))を取り扱ってくれない修正
 @app.route("^/four$")

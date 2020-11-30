@@ -29,4 +29,5 @@ if __name__=="__main__":
     #print(s[4])
     #print(s[4:])
     #print(s[:4])
-    print(ast_miyasuku("Return(value=Call(func=Attribute(value=Name(id='html', ctx=Load()), attr='format', ctx=Load()), args=[], keywords=[keyword(arg='name', value=Subscript(value=Subscript(value=Attribute(value=Name(id='request', ctx=Load()), attr='query', ctx=Load()), slice=Index(value=Str(s='name')), ctx=Load()), slice=Index(value=Num(n=0)), ctx=Load())), keyword(arg='content', value=Subscript(value=Subscript(value=Attribute(value=Name(id='request', ctx=Load()), attr='query', ctx=Load()), slice=Index(value=Str(s='content')), ctx=Load()), slice=Index(value=Num(n=0)), ctx=Load()))]))"))
+    #"Return(value=Call(func=Attribute(value=Name(id='html', ctx=Load()), attr='format', ctx=Load()), args=[Call(func=Name(id='escape_xss_characters', ctx=Load()), args=[Str(s='sobasoba')], keywords=[])], keywords=[]))"
+    print(ast_miyasuku("Return(value=Call(func=Attribute(value=Name(id='html', ctx=Load()), attr='format', ctx=Load()), args=[Call(func=Name(id='escape_xss_characters', ctx=Load()), args=[Str(s='sobasoba')], keywords=[])], keywords=[]))"))

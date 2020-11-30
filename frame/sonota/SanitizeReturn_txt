@@ -1,0 +1,55 @@
+class SanitizeReturnValueUsingFormat(ast.NodeTransformer):
+    def visit_Return(self, node):
+        new_args = []
+        new_keywords = []
+        new_value = []
+        if isinstance(node.value, ast.Call):
+            if isinstance(node.value.func, ast.Attribute):
+                if node.value.func.attr == 'format':
+                    for arg in node.value.args:
+                        new_arg = ast.Call(
+                            func=(ast.Name(id='escape_xss_characters', ctx=ast.Load())),
+                            args=[arg],
+                            keywords=node.value.keywords
+                        )
+                        new_args.append(new_arg)
+                    for keyword in node.value.keywords:
+                        new_keyword = ast.keyword(
+                            arg = node.value.args,
+                            keywords = [keyword],
+                        )
+                        new_keywords.append(new_keyword)
+
+                    #Return(
+                    #  value = ast.Call(
+                    #    func = Attr(...),
+                    #    args = [...],
+                    #    keywords = [...]
+                    #  )
+                    #)
+                    if new_args:
+                        if new_keywords:
+                            new_node = ast.Return(
+                                value=ast.Call(
+                                    func=node.value.func,
+                                    args=new_args,
+                                    keywords=new_keywords
+                                )
+                            )
+                        else:
+                            new_node = ast.Return(
+                                value=ast.Call(
+                                    func=node.value.func,
+                                    args=new_args,
+                                    keywords=node.value.keywords
+                                )
+                            )
+
+                    else:
+                        if new_keywords:
+                            return node
+                        else:
+                            return node
+                    print(ast.dump(node))
+                    return ast.copy_location(new_node, node)
+        return node

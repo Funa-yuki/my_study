@@ -84,7 +84,6 @@ def check_and_insert_is_admin(ast_callbacks):
         else:
             new_node = None
             for ret_node in ret_nodes:
-                print(ast.dump(node))
                 if not from_is_admin(node, ret_node):
                     #if is_adminノードの追加
                     new_node = InsertIsAdminFunc(ret_node).visit(node)
@@ -126,38 +125,38 @@ class RewriteReversePrint(ast.NodeTransformer):
 
 class SanitizeReturnValueUsingFormat(ast.NodeTransformer):
     def visit_Return(self, node):
+        # argsとkeywordsを変更、escape_xss_characters()関数を噛ませる
         new_args = []
         new_keywords = []
-        new_value = []
+        # return "...".format()を決める
         if isinstance(node.value, ast.Call):
             if isinstance(node.value.func, ast.Attribute):
                 if node.value.func.attr == 'format':
-                    print(ast.dump(node))
                     for arg in node.value.args:
                         new_arg = ast.Call(
-                            func='escape_xss_characters',
+                            func=(ast.Name(id='escape_xss_characters', ctx=ast.Load())),
                             args=[arg],
-                            ctx=ast.Load(),
+                            keywords=[]
                         )
                         new_args.append(new_arg)
-                    for keyword in node.value.keywords:
-                        #keyword の引数にcall(escape_xss_charactersを上書き)
-                        new_keyword = ast.keyword(
-                            arg = keyword.arg,
-                            value = keyword.value,
+
+                    for keyword in keywords:
+                        new_keyword = ast.Call(
+
                         )
                         new_keywords.append(new_keyword)
-                    if new_args:
-                        print(new_args)
-                    print()
 
-                    if new_keywords:
-                        print(new_keywords)
-                    print()
-                    new_node = node
+                    #後で消すところ
+                    new_keywords = node.value.keywords
+                    new_node = ast.Return(
+                        value=ast.Call(
+                            func=node.value.func,
+                            args=new_args,
+                            keywords=new_keywords
+                        )
+                    )
                     return ast.copy_location(new_node, node)
         return node
-
 
 class InsertIsAdminFunc(ast.NodeTransformer):
     def __init__(self, ret_node):
@@ -226,7 +225,6 @@ def search_ret_node(node, ret_node):
         for node in ast.walk(b):
             if isinstance(node, ast.Return):
                 if ast.dump(node) == ast.dump(ret_node):
-                    print(ast.dump(node))
                     return True
     return False
 
