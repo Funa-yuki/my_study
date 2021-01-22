@@ -30,8 +30,7 @@ class App:
         self.router.fix()
         overhead = time.time() - starting_time
         print("starting overhead is {} sec".format(overhead))
-
-        with make_server('', port, app) as httpd:
+        with make_server('', port, self) as httpd:
             print('Serving HTTP on port {}'.format(port))
             httpd.serve_forever()
 
