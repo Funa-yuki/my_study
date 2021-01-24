@@ -141,6 +141,58 @@ VHフレームワークはコールバック関数を解析し修正する脆弱
 
 \chapter{実装}
 この章では，VHフレームワークの実装について記述する．
+VHフレームワークはPython3.7によって実装されている．
+VHフレームワークは2つのシステムによって構成されている．
+コールバック関数を修正するシステムとリクエストを処理する機能である．
+
+\section{コールバック関数の修正機能}
+VHフレームワークは実行開始時にコールバック関数を解析・修正する．
+この時に行われる処理はコールバック関数の格納とコールバック関数の修正の2つである．
+
+\subsection{コールバック関数の格納}
+VHフレームワークはコールバック関数を格納するためにデコレータを利用する．
+以下のソースコードはコールバック関数の例である．
+\begin{lstlisting}[caption={コールバック関数の一例}, label=code:callback, captionpos=b]
+@app.route(path='/', method='GET')
+def index(request):
+  return "Hello"
+\end{lstlisting}
+1行目がデコレータである．
+デコレータは関数を修飾する関数であり，下記の2つのソースコードは糖衣構文である．
+\begin{lstlisting}[caption={Pythonデコレータのコード例}, label=code:decorator, captionpos=b]
+@decorator
+  def func():
+    ...
+\end{lstlisting}
+\begin{lstlisting}[caption={\ref{code:decorator}と糖衣構文なソースコード例}, label=code:decorator2, captionpos=b]
+def func():
+  ...
+func = decorator(func)
+\end{lstlisting}
+デコレータを利用することで，関数を引数にする関数の記述を簡易にしてくれる．
+ソースコード\ref{code:callback}の1行目にあるappはVHフレームワークのモジュールであり，routeはappモジュールが持つメソッドの一つである．
+routeメソッドはリクエストパスとリクエストメソッド，コールバック関数を引数としている．
+ソースコード\ref{code:callback}のpathがリクエストパス，methodがリクエストメソッド，2行目と3行目の関数が第3引数のコールバック関数である．
+ソースコード\ref{code:callback}の2行目と3行目がコールバック関数である．
+コールバック関数はrequestを引数として受け取る．
+requestはリクエストの情報を格納している変数である．
+ソースコード\ref{code:callback}の3行目は戻り値であり，この戻り値はその後レスポンスボディになる．
+routeメソッドはリクエストパスとリクエストメソッドをコールバック関数と対応付けてVHフレームワークに格納する．
+以下がrouteメソッドの実装である．
+\begin{lstlisting}[caption={routeメソッド}, label=code:route_method, captionpos=b]
+import app
+\end{lstlisting}
+%hogehoge
+
+\section{コールバック関数の修正}
+コールバック関数の修正のために．
+
+\subsection{コールバック関数の修正}
+
+\section{リクエスト処理機能}
+
+%5つのシステム（モジュール）で構成
+VHフレームワークは5つのシステムで構成される．
 
 
 \chapter{実験}
