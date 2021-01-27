@@ -18,11 +18,11 @@ class App:
     def __init__(self):
         self.router = Router()
 
-    def route(self, path=None, method='GET', callback=None):
+    def route(self, path=None, method='GET'):
         def decorator(callback_func):
             self.router.add(method, path, callback_func)
             return callback_func
-        return decorator(callback) if callback else decorator
+        return decorator
 
     def run(self, port=8000):
         #fix callback functions

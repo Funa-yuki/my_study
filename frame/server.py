@@ -25,9 +25,11 @@ def login2(request):
     else:
         return "LOGIN"
 
-@app.route("^/home$", "GET")
+#@app.route("^/home$", "GET")
 def home(request):
     return "ADMIN"
+
+home = app.route("^/home$", "GET")(home)
 
 if __name__=="__main__":
     app.run(port=8000)
