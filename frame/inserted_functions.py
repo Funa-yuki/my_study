@@ -27,6 +27,7 @@ def reverse_print(s):
 # set_cookieはまたあとで、今回はidとpasswordを毎回調べる
 def is_admin(id=None, password=None):
     if id is None or password is None:
+        print("Login Required")
         return False
 
     if id is "admin" and password is "admin_pass":

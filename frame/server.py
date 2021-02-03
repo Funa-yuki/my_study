@@ -5,11 +5,11 @@ def index(request):
     print("hoge")
     return "INDEX"
 
-@app.route("^/login$", "GET")
+@app.route("^/login$", "POST")
 def login(request):
     return "LOGIN"
 
-@app.route("^/login$", "POST")
+@app.route("^/login$", "GET")
 def do_login(request):
     id = "admin"
     password = "admin_pass"

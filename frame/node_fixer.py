@@ -66,15 +66,9 @@ def check_and_insert_is_admin(ast_callbacks):
         node = ast_callback.get('ast')
         ret_node = search_return_node_from_if_auth_func(node=node, auth_func_name='is_admin')
         if ret_node:
-            if len(return_nodes_from_is_admin) is 0:
-                return_nodes_from_is_admin.append(ret_node)
-            else:
-                for n in return_nodes_from_is_admin:
-                    if ast.dump(n) is not ast.dump(ret_node):
-                        continue
-                    else:
-                        return_nodes_from_is_admin.append(ret_node)
-                        break
+            return_nodes_from_is_admin.append(ret_node)
+            print(ret_node)
+
     #return_nodes_from_is_adminの要素と同じもののうち、if is_adminに入っていないものを探す
     for ast_callback in ast_callbacks:
         node = ast_callback.get("ast")
@@ -84,9 +78,9 @@ def check_and_insert_is_admin(ast_callbacks):
         else:
             new_node = None
             for ret_node in ret_nodes:
-                if not from_is_admin(node, ret_node):
+                if not ret_node in return_nodes_from_is_admin:
                     #if is_adminノードの追加
-                    new_node = InsertIsAdminFunc(ret_node).visit(node)
+                    new_node = InsertIsAdminFunc(ret_node).visit(node) if not new_node else InsertIsAdminFunc(ret_node).visit(new_node)
             new_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
     return new_callbacks
 
@@ -199,14 +193,6 @@ def has_return_nodes(node, return_nodes):
                 if ast.dump(ret_node) == ast.dump(n):
                     l.append(n)
     return l
-
- # ifの条件がis_admin()から、ret_nodeに行くようなノードがあるか
-def from_is_admin(node, ret_node):
-    for n in ast.walk(node):
-        if isinstance(n, ast.If) and have_is_admin_condition(n):
-            if search_ret_node(node, ret_node):
-                return True
-    return False
 
 # nodeはast.Ifでそれがis_admin()を条件にしているか
 def have_is_admin_condition(node):
