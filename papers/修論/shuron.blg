@@ -8,49 +8,55 @@ Warning--entry type for "bottle" isn't style-file defined
 Warning--entry type for "flask" isn't style-file defined
 --line 70 of file ref.bib
 Warning--entry type for "improper_authentication" isn't style-file defined
---line 82 of file ref.bib
-Warning--I didn't find a database entry for "ref:ast"
+--line 92 of file ref.bib
+Warning--entry type for "ast" isn't style-file defined
+--line 98 of file ref.bib
+I was expecting a `,' or a `}'---line 101 of file ref.bib
+ :   
+ :   organization={Python Software Foundation}
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
 Warning--empty journal in waf_ipa
 Warning--empty year in waf_ipa
-You've used 11 entries,
+You've used 13 entries,
             1791 wiz_defined-function locations,
-            505 strings with 5759 characters,
-and the built_in function-call counts, 3021 in all, are:
-= -- 280
-> -- 96
+            514 strings with 6046 characters,
+and the built_in function-call counts, 3388 in all, are:
+= -- 311
+> -- 111
 < -- 6
-+ -- 37
-- -- 26
-* -- 139
-:= -- 406
-add.period$ -- 35
-call.type$ -- 11
-change.case$ -- 11
++ -- 43
+- -- 30
+* -- 161
+:= -- 462
+add.period$ -- 40
+call.type$ -- 13
+change.case$ -- 13
 chr.to.int$ -- 0
-cite$ -- 13
-duplicate$ -- 163
-empty$ -- 325
-format.name$ -- 26
-if$ -- 734
+cite$ -- 15
+duplicate$ -- 177
+empty$ -- 367
+format.name$ -- 30
+if$ -- 815
 int.to.chr$ -- 0
-int.to.str$ -- 11
-missing$ -- 8
-newline$ -- 58
-num.names$ -- 11
-pop$ -- 72
+int.to.str$ -- 13
+missing$ -- 9
+newline$ -- 67
+num.names$ -- 13
+pop$ -- 78
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 113
+skip$ -- 123
 stack$ -- 0
-substring$ -- 200
-swap$ -- 73
+substring$ -- 225
+swap$ -- 75
 text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 2
-while$ -- 29
-width$ -- 13
-write$ -- 116
-(There were 6 warnings)
+while$ -- 33
+width$ -- 15
+write$ -- 134
+(There was 1 error message)

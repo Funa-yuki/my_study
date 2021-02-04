@@ -38,6 +38,12 @@ Avik Chaudhuri and Jeffrey~S Foster.
 \newblock In {\em Proceedings of the 17th ACM conference on Computer and
   communications security}, pages 585--594, 2010.
 
+\bibitem{le2011doubleguard}
+Meixing Le, Angelos Stavrou, and Brent~ByungHoon Kang.
+\newblock Doubleguard: Detecting intrusions in multitier web applications.
+\newblock {\em IEEE Transactions on dependable and secure computing},
+  9(4):512--525, 2011.
+
 \bibitem{krueger2010tokdoc}
 Tammo Krueger, Christian Gehl, Konrad Rieck, and Pavel Laskov.
 \newblock Tokdoc: A self-healing web application firewall.
@@ -67,7 +73,11 @@ William~GJ Halfond and Alessandro Orso.
 \bibitem{improper_authentication}
 独立行政法人情報処理推進機構.
 \newblock 不適切な認証(cwe-287) - jvn ipedia.
-\newblock \url{https://jvndb.jvn.jp/ja/cwe/CWE-287.html} 参照日時:
-  2021-02-04.
+\newblock \url{https://jvndb.jvn.jp/ja/cwe/CWE-287.html} (参照日時:
+  2021-02-04).
+
+\bibitem{ast}
+Python~Software Foundation.
+\newblock ast -\--\-- 抽象構文木 — python 3.9.1 ドキュメント.
 
 \end{thebibliography}
