@@ -1,0 +1,73 @@
+\begin{thebibliography}{10}
+
+\bibitem{weinberger2011systematic}
+Joel Weinberger, Prateek Saxena, Devdatta Akhawe, Matthew Finifter, Richard
+  Shin, and Dawn Song.
+\newblock A systematic analysis of xss sanitization in web application
+  frameworks.
+\newblock In {\em European Symposium on Research in Computer Security}, pages
+  150--171. Springer, 2011.
+
+\bibitem{bottle}
+Marcel Hellkamp.
+\newblock Bottle: Python web framework.
+\newblock \url{https://bottlepy.org/docs/dev/} (参照日時: 2021-02-04).
+
+\bibitem{flask}
+Pallets.
+\newblock Welcome to flask -- flask documentation (1.1.x).
+\newblock \url{https://flask.palletsprojects.com/en/1.1.x/} (参照日時:
+  2021-02-04).
+
+\bibitem{kruegel2003anomaly}
+Christopher Kruegel and Giovanni Vigna.
+\newblock Anomaly detection of web-based attacks.
+\newblock In {\em Proceedings of the 10th ACM conference on Computer and
+  communications security}, pages 251--261, 2003.
+
+\bibitem{epp2017anomaly}
+Nico Epp, Ralf Funk, Cristian Cappo, and San Lorenzo-Paraguay.
+\newblock Anomaly-based web application firewall using http-specific features
+  and one-class svm.
+\newblock In {\em Workshop Regional de Seguran{\c{c}}a da Informa{\c{c}}{\~a}o
+  e de Sistemas Computacionais}, 2017.
+
+\bibitem{chaudhuri2010symbolic}
+Avik Chaudhuri and Jeffrey~S Foster.
+\newblock Symbolic security analysis of ruby-on-rails web applications.
+\newblock In {\em Proceedings of the 17th ACM conference on Computer and
+  communications security}, pages 585--594, 2010.
+
+\bibitem{krueger2010tokdoc}
+Tammo Krueger, Christian Gehl, Konrad Rieck, and Pavel Laskov.
+\newblock Tokdoc: A self-healing web application firewall.
+\newblock In {\em Proceedings of the 2010 ACM Symposium on Applied Computing},
+  pages 1846--1853, 2010.
+
+\bibitem{waf_ipa}
+独立行政法人情報処理推進機構セキュリティセンター.
+\newblock Web application firewall(waf)読本　改訂第2版第3刷.
+\newblock \url{https://www.ipa.go.jp/files/000017312.pdf} (参照日時:
+  2021-02-04).
+
+\bibitem{ito2018web}
+Michiaki Ito and Hitoshi Iyatomi.
+\newblock Web application firewall using character-level convolutional neural
+  network.
+\newblock In {\em 2018 IEEE 14th International Colloquium on Signal Processing
+  \& Its Applications (CSPA)}, pages 103--106. IEEE, 2018.
+
+\bibitem{halfond2005amnesia}
+William~GJ Halfond and Alessandro Orso.
+\newblock Amnesia: analysis and monitoring for neutralizing sql-injection
+  attacks.
+\newblock In {\em Proceedings of the 20th IEEE/ACM international Conference on
+  Automated software engineering}, pages 174--183, 2005.
+
+\bibitem{improper_authentication}
+独立行政法人情報処理推進機構.
+\newblock 不適切な認証(cwe-287) - jvn ipedia.
+\newblock \url{https://jvndb.jvn.jp/ja/cwe/CWE-287.html} 参照日時:
+  2021-02-04.
+
+\end{thebibliography}
