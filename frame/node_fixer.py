@@ -20,15 +20,6 @@ class NodeFixer(object):
 node_fixer = NodeFixer()
 
 ### framework fixers ###
-@node_fixer.add
-def insert_query_checker(ast_callbacks):
-    new_ast_callbacks = []
-    for ast_callback in ast_callbacks:
-        node = ast_callback.get('ast')
-        new_node = InsertQueryChecker().visit(node)
-        new_ast_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
-    return new_ast_callbacks
-
 # test code print -> reverse_print
 @node_fixer.add
 def rewrite_print_to_reverse_print(ast_callbacks):
@@ -39,6 +30,14 @@ def rewrite_print_to_reverse_print(ast_callbacks):
         new_ast_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
     return new_ast_callbacks
 
+@node_fixer.add
+def insert_query_checker(ast_callbacks):
+    new_ast_callbacks = []
+    for ast_callback in ast_callbacks:
+        node = ast_callback.get('ast')
+        new_node = InsertQueryChecker().visit(node)
+        new_ast_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
+    return new_ast_callbacks
 
 @node_fixer.add
 def rewrite_for_xss(ast_callbacks):
@@ -67,7 +66,6 @@ def check_and_insert_is_admin(ast_callbacks):
         ret_node = search_return_node_from_if_auth_func(node=node, auth_func_name='is_admin')
         if ret_node:
             return_nodes_from_is_admin.append(ret_node)
-            print(ret_node)
 
     #return_nodes_from_is_adminの要素と同じもののうち、if is_adminに入っていないものを探す
     for ast_callback in ast_callbacks:
@@ -77,10 +75,11 @@ def check_and_insert_is_admin(ast_callbacks):
             new_callbacks.append(ast_callback)
         else:
             new_node = None
+            else_ret_node = None
             for ret_node in ret_nodes:
                 if not ret_node in return_nodes_from_is_admin:
                     #if is_adminノードの追加
-                    new_node = InsertIsAdminFunc(ret_node).visit(node) if not new_node else InsertIsAdminFunc(ret_node).visit(new_node)
+                    new_node = InsertIsAdminFunc(ret_node, else_ret_node).visit(node) if not new_node else InsertIsAdminFunc(ret_node, else_ret_node).visit(new_node)
             new_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
     return new_callbacks
 
@@ -153,8 +152,9 @@ class SanitizeReturnValueUsingFormat(ast.NodeTransformer):
         return node
 
 class InsertIsAdminFunc(ast.NodeTransformer):
-    def __init__(self, ret_node):
+    def __init__(self, ret_node, else_ret_node):
         self.ret_node = ret_node
+        self.else_ret_node = else_ret_node
 
     def visit_Return(self, node):
         # condition は is_admin
@@ -167,6 +167,7 @@ class InsertIsAdminFunc(ast.NodeTransformer):
                     keywords=[]
                 ),
                 body=[node],
+                #orelseを新しく作る必要がある
                 orelse=[ast.Return(value=ast.Str(s='LOGIN'))]
             )
             return ast.copy_location(new_node, node)

@@ -29,8 +29,7 @@ def is_admin(id=None, password=None):
     if id is None or password is None:
         print("Login Required")
         return False
-
-    if id is "admin" and password is "admin_pass":
+    if id == "admin" and password == "admin_pass":
         return True
     return False
 
