@@ -15,12 +15,12 @@ def escape_special_query(query):
             return ""
     return query
 
-def reverse_print(s):
+def reverse_print(s, *args, **kwargs):
     if isinstance(s, str):
-        print(s[::-1])
+        print(s[::-1], *args, **kwargs)
     else:
         print("Not Str")
-        print(s)
+        print(s, *args, **kwargs)
 
 # is_adminを正しく動かす
 # is_adminはlogin試行が正しくできているかの話？

@@ -11,6 +11,7 @@ class Request:
         self.environ = environ
         self.charset = charset
         self.forms = self.make_forms()
+        self.query = self.make_query()
 
     @property
     def path(self):
@@ -32,8 +33,7 @@ class Request:
             forms = parse_qs(body)
             return forms
 
-    @property
-    def query(self):
+    def make_query(self):
         return parse_qs(urlunquote(self.environ['QUERY_STRING']))
 
     @property

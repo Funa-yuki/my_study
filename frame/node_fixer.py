@@ -1,7 +1,6 @@
 from inserted_functions import *
 
 import ast
-import re
 
 class NodeFixer(object):
     def __init__(self):
@@ -51,37 +50,41 @@ def rewrite_for_xss(ast_callbacks):
 # 権限をチェックして、権限がないやつに自動で追加するやつ
 @node_fixer.add
 def check_and_insert_is_admin(ast_callbacks):
-    # Node: If(test=Call(func=Name(id='auth', ctx=Load()), args=[Name(id='request', ctx=Load())], keywords=[]), body=[Return(value=Str(s='Admin'))], orelse=[Return(value=Str(s='LOGIN'))])
-    # から ifでauth() -> return "Admin"の情報を得る必要がある
-    '''
-    return_nodes_from_is_adminに
-    if is_admin(request):
-        return 'hoge'
-    を満たすast.Returnオブジェクトを探してリストに格納
-    '''
     return_nodes_from_is_admin = []
+    if_auth_ret_node_list = []
     new_callbacks = []
-    for ast_callback in ast_callbacks:
-        node = ast_callback.get('ast')
-        ret_node = search_return_node_from_if_auth_func(node=node, auth_func_name='is_admin')
-        if ret_node:
-            return_nodes_from_is_admin.append(ret_node)
+    dump_searched_ret_nodes = []
 
-    #return_nodes_from_is_adminの要素と同じもののうち、if is_adminに入っていないものを探す
+    # astのcallbackから if is_admin():下のreturnオブジェクトとelse:下のreturnオブジェクトを
+    # [{'ret_node': ret_node, 'orelse_ret_node': orelse_ret_node}, {...}, ...]
+    # の形でreturn_nodes_from_is_adminに格納するforループ
     for ast_callback in ast_callbacks:
-        node = ast_callback.get("ast")
-        ret_nodes = has_return_nodes(node, return_nodes_from_is_admin)
-        if not ret_nodes:
-            new_callbacks.append(ast_callback)
+        callback_node = ast_callback['ast']
+        ret_node, orelse_ret_node = search_return_node_from_if_auth_func(node=callback_node, auth_func_name='is_admin')
+        if ret_node:
+            if_auth_ret_node_list.append(ret_node)
+            return_nodes_from_is_admin.append({'ret_node':ret_node, 'orelse_ret_node':orelse_ret_node})
+
+    # return_nodes_from_is_admin['ret_node']とdump内容が同じかつreturn_nodes_from_is_adminに入っていないreturnを探す
+    for ast_callback in ast_callbacks:
+        callback_node = ast_callback['ast']
+        dump_searched_ret_nodes += search_same_dump_return_nodes(callback_node, if_auth_ret_node_list)
+
+    # dumped_searched_ret_nodesの中でif_auth_ret_node_listに入っていないものを取り出す
+    not_if_auth_ret_nodes = list(set(dump_searched_ret_nodes) - set(if_auth_ret_node_list))
+
+    #コールバック関数の修正
+    for ast_callback in ast_callbacks:
+        callback_node = ast_callback["ast"]
+        if not_if_auth_ret_nodes:
+            for not_if_auth_ret_node in not_if_auth_ret_nodes:
+                orelse_ret_node = search_orelse_node(return_nodes_from_is_admin, not_if_auth_ret_node)
+                new_node = InsertIsAdminFunc(not_if_auth_ret_nodes, orelse_ret_node).visit(callback_node)
+                new_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
         else:
-            new_node = None
-            else_ret_node = None
-            for ret_node in ret_nodes:
-                if not ret_node in return_nodes_from_is_admin:
-                    #if is_adminノードの追加
-                    new_node = InsertIsAdminFunc(ret_node, else_ret_node).visit(node) if not new_node else InsertIsAdminFunc(ret_node, else_ret_node).visit(new_node)
-            new_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
+            new_callbacks.append(ast_callback)
     return new_callbacks
+
 
 ### ast Transformer Subclasses
 class InsertQueryChecker(ast.NodeTransformer):
@@ -152,14 +155,12 @@ class SanitizeReturnValueUsingFormat(ast.NodeTransformer):
         return node
 
 class InsertIsAdminFunc(ast.NodeTransformer):
-    def __init__(self, ret_node, else_ret_node):
-        self.ret_node = ret_node
-        self.else_ret_node = else_ret_node
+    def __init__(self, ret_nodes, orelse_ret_node=None):
+        self.ret_nodes = ret_nodes
+        self.orelse_ret_node = orelse_ret_node
 
     def visit_Return(self, node):
-        # condition は is_admin
-        # 本当はorelse=[ast.Return(loginページ)]にする必要がある
-        if ast.dump(self.ret_node) == ast.dump(node):
+        if node in self.ret_nodes:
             new_node = ast.If(
                 test=ast.Call(
                     func=ast.Name(id='is_admin', ctx=ast.Load()),
@@ -168,52 +169,43 @@ class InsertIsAdminFunc(ast.NodeTransformer):
                 ),
                 body=[node],
                 #orelseを新しく作る必要がある
-                orelse=[ast.Return(value=ast.Str(s='LOGIN'))]
+                orelse=[self.orelse_ret_node]
             )
             return ast.copy_location(new_node, node)
         return node
 
-
 ### search functions ###
 def search_return_node_from_if_auth_func(node, auth_func_name):
+    ret_node = None
+    orelse_ret_node = None
     for n in ast.walk(node):
         if isinstance(n, ast.If):
-            if isinstance(n.test, ast.Call) and n.test.func.id is auth_func_name:
-                for body in n.body:
-                    for b in ast.walk(body):
-                        if isinstance(b, ast.Return):
-                            return b
-    return None
+            if isinstance(n.test, ast.Call) and isinstance(n.test.func, ast.Name) and n.test.func.id is auth_func_name:
+                ret_node = search_ret_node(n.body)
+                orelse_ret_node = search_ret_node(n.orelse)
+    return ret_node, orelse_ret_node
 
-# 一致するノードを探して、リストを返す
-def has_return_nodes(node, return_nodes):
+def search_same_dump_return_nodes(node, ret_nodes):
     l = []
     for n in ast.walk(node):
         if isinstance(n, ast.Return):
-            for ret_node in return_nodes:
-                if ast.dump(ret_node) == ast.dump(n):
+            for ret_node in ret_nodes:
+                if ast.dump(n) == ast.dump(ret_node):
                     l.append(n)
     return l
 
-# nodeはast.Ifでそれがis_admin()を条件にしているか
-def have_is_admin_condition(node):
-    condition = node.test
-    if isinstance(condition, ast.Call):
-        for n in ast.walk(condition):
-            if isinstance(n, ast.Name) and n.id == 'is_admin':
-                return True
-    return False
+def search_ret_node(nodes):
+    for node in nodes:
+        for n in ast.walk(node):
+            if isinstance(n, ast.Return):
+                return n
+    return None
 
-
-# nodeはast.If, ノード下にret_nodeが入っている場合True
-def search_ret_node(node, ret_node):
-    body = node.body
-    for b in body:
-        for node in ast.walk(b):
-            if isinstance(node, ast.Return):
-                if ast.dump(node) == ast.dump(ret_node):
-                    return True
-    return False
+def search_orelse_node(nodes, not_if_auth_ret_node):
+    for node_dict in nodes:
+        if ast.dump(node_dict['ret_node']) == ast.dump(not_if_auth_ret_node):
+            return node_dict['orelse_ret_node']
+    return None
 
 def make_new_callback(callback, new_node=None):
     new_callback = {}
