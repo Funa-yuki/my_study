@@ -50,7 +50,7 @@ ls
 ## vhfでwebアプリケーションを作って，ローカルで実行する
 webアプリケーションをvhfで作成してローカルで実行します．
 
-```sh: vhfディレクトリに移動
+```sh:
 #vhf-dirで
 cd vhf
 
@@ -117,7 +117,7 @@ node_fixer.addの下の関数がコールバック関数を修正する関数（
 
 この引数はリストで，要素はそれぞれコールバック関数とリクエストパス，リクエストメソッドです．
 引数ast_callbacksは以下のようになっています．
-```py: ast_callbacksの中身
+```py:
 ast_callbacks = [{"path": "^/hello$", "method": "GET", "ast": ast状態のコールバック関数}, ..., {"path": ..., ..., "ast": ast状態のコールバック関数}]
 ```
 
@@ -129,7 +129,7 @@ astとは抽象構文木（Abstract Syntax Tree）の略です．
 この関数はコールバック関数内のprint()関数をreverse_print()関数に変更します．
 reverse_print()関数はprint関数の文字列を逆から出力する関数で，inserted_functions.pyに記述されています．
 reverse_print()関数の具体的なソースコードは以下のようになっています．
-```py: inserted_functions.py
+```py:inserted_functions.py
 def reverse_print(s, *args, **kwargs):
     if isinstance(s, str):
         print(s[::-1], *args, **kwargs)
