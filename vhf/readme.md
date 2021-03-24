@@ -88,11 +88,17 @@ if __name__=="__main__":
   app.run(port=8000)
 ```
 
+vhfを実行します．
+my_server.pyがあるディレクトリで以下を実行します．
+
 ```sh: ローカルで実行
 python3 my_server.py
 ```
+
 webブラウザで'localhost:8000/hello'を実行
 ブラウザにHelloと表示されていたらOK
+
+終了する時は，ターミナルでctrl（コントロールボタン） + c　で終了します．
 
 ## アプリケーションを修正する
 vhfはnode_fixer.py内でコールバック関数を修正します．
@@ -118,7 +124,11 @@ node_fixer.addの下の関数がコールバック関数を修正する関数（
 この引数はリストで，要素はそれぞれコールバック関数とリクエストパス，リクエストメソッドです．
 引数ast_callbacksは以下のようになっています．
 ```py:
-ast_callbacks = [{"path": "^/hello$", "method": "GET", "ast": ast状態のコールバック関数}, ..., {"path": ..., ..., "ast": ast状態のコールバック関数}]
+ast_callbacks = [
+  {"callback_name": "hello", "method": "GET", "path": "^/hello$", "path_compiled":r'^/hello$', "ast": ast状態のコールバック関数},
+  {...},
+  ...
+]
 ```
 
 astとは抽象構文木（Abstract Syntax Tree）の略です．
@@ -138,3 +148,73 @@ def reverse_print(s, *args, **kwargs):
         print(s, *args, **kwargs)
 ```
  rewrite_print_to_reverse_print()関数は，コールバック関数内部でprint()関数を見つけるとreverse_print()に変更します．
+
+以下がrewrite_print_to_reverse_print()関数とその内部で利用される関数です．
+```py:node_fixer.py
+from inserted_functions import *
+import ast #pythonが提供しているastに関するモジュール
+
+# (中略)
+
+@node_fixer.add
+def rewrite_print_to_reverse_print(ast_callbacks):
+    new_ast_callbacks = []
+    for ast_callback in ast_callbacks:
+        node = ast_callback.get('ast') # ast_callback = {"callback_name": ..., ..., "ast": ast_callback} だから nodeにast_callbackを代入
+        new_node = RewriteReversePrint().visit(node) # ast状態のコールバック関数を修正するメソッド
+        new_ast_callbacks.append(make_new_callback(ast_callback, new_node=new_node)) # 修正されたコールバック関数をnew_ast_callbacksに格納
+    return new_ast_callbacks
+
+# (中略)
+
+# ast.NodeTransformerの子クラス
+# visit_ノード属性()メソッドは，引数にast状態の変数を取ってノードを探索する
+# 引数のノードとvisit_ノード属性が一致する場合，visit_ノード属性()メソッドが実行される
+class RewriteReversePrint(ast.NodeTransformer):
+    #visit_Name()メソッドなのでName属性のノードの時に実行される
+    def visit_Name(self, node):
+        # nodeの名前が"print"の時に"reverse_print"に変更するノードを作成
+        if node.id is 'print':
+            new_node = ast.Name(
+                id='reverse_print',
+                ctx=ast.Load()
+            )
+            return ast.copy_location(new_node, node)　# ast.copy_location()メソッドによって，nodeのprintの部分をnew_nodeに変更する
+        return node
+
+# (中略)
+
+def make_new_callback(callback, new_node=None):
+    new_callback = {}
+    if new_node:
+        new_callback = {
+            'callback_name': callback.get('callback_name'),
+            'method': callback.get('method'),
+            'path': callback.get('path'),
+            'path_compiled': callback.get('path_compiled'),
+            'ast': new_node
+        }
+        return new_callback
+    return callback
+
+```
+
+このようにして，コールバック関数が修正します．
+コールバック関数を修正しているか確認するために，my_server.pyに以下を追加します．
+```py:my_server.py
+from app import *
+
+@app.route("^/hello$", "GET")
+def hello(request):
+  print("hoge") #追加部分
+  return "Hello"
+
+if __name__=="__main__":
+  app.run(port=8000)
+```
+
+その後実行します．
+```sh:再実行
+python3 my_server.py
+```
+ターミナル上で"egoh"と出力されていたらOKです．
