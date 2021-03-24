@@ -221,14 +221,22 @@ webブラウザでlocalhost:8000/helloを実行して，その時にターミナ
 
 # 参考URL
 git
+
 [Gitの一部のディレクトリだけ取得する方法](https://qiita.com/tbpgr/items/989c6badefff69377da7)
 
+
 python astについて
+
 [ast --- 抽象構文木](https://docs.python.org/ja/3/library/ast.html)
+
 [Pythonのastモジュール入門](https://qiita.com/t2y/items/c8877cf5d3d22cdcf2a8)
+
 [ast.NodeTransformerによるコード書き換えの例](https://qiita.com/wonderful_panda/items/dfb12a7de244033aae85)
+
 
 webアプリケーションフレームワーク関連
 [Webアプリケーションフレームワークの作り方 in Python](https://c-bata.link/webframework-in-python/#)
+
 [Bottle: Python Web Framework](https://bottlepy.org/docs/dev/)
+
 [Bottleのソースコード(github)](https://github.com/bottlepy/bottle/blob/master/bottle.py)
