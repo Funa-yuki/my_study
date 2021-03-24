@@ -94,9 +94,8 @@ my_server.pyがあるディレクトリで以下を実行します．
 ```sh: ローカルで実行
 python3 my_server.py
 ```
-
-webブラウザで'localhost:8000/hello'を実行
-ブラウザにHelloと表示されていたらOK
+ターミナルで"Serving HTTP on port 8000"が出力されたら，webブラウザで'localhost:8000/hello'を実行します．
+ブラウザにHelloと表示されていたらOK．
 
 終了する時は，ターミナルでctrl（コントロールボタン） + c　で終了します．
 
@@ -179,7 +178,7 @@ class RewriteReversePrint(ast.NodeTransformer):
                 id='reverse_print',
                 ctx=ast.Load()
             )
-            return ast.copy_location(new_node, node)　# ast.copy_location()メソッドによって，nodeのprintの部分をnew_nodeに変更する
+            return ast.copy_location(new_node, node) # ast.copy_location()メソッドによって，nodeのprintの部分をnew_nodeに変更する
         return node
 
 # (中略)
@@ -199,7 +198,7 @@ def make_new_callback(callback, new_node=None):
 
 ```
 
-このようにして，コールバック関数が修正します．
+このようにして，コールバック関数が修正されます．
 コールバック関数を修正しているか確認するために，my_server.pyに以下を追加します．
 ```py:my_server.py
 from app import *
