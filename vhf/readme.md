@@ -72,7 +72,7 @@ my_server.pyを記述します．
 
 vhfの仕様でコールバック関数の引数にはrequestが必要です．
 
-```py3:my_server.py
+```py:my_server.py
 # vhfをimportする
 from app import *
 
@@ -101,7 +101,7 @@ node_fixer.pyの21行目以降にコールバック関数を修正する関数�
 
 記述例は下です．
 
-```py3:node_fixer.py
+```py:node_fixer.py
 @node_fixer.add
 def fix_hoge(ast_callbacks):
   new_ast_callbacks = ...
@@ -117,7 +117,7 @@ node_fixer.addの下の関数がコールバック関数を修正する関数（
 
 この引数はリストで，要素はそれぞれコールバック関数とリクエストパス，リクエストメソッドです．
 引数ast_callbacksは以下のようになっています．
-```py3: ast_callbacksの中身
+```py: ast_callbacksの中身
 ast_callbacks = [{"path": "^/hello$", "method": "GET", "ast": ast状態のコールバック関数}, ..., {"path": ..., ..., "ast": ast状態のコールバック関数}]
 ```
 
@@ -129,7 +129,7 @@ astとは抽象構文木（Abstract Syntax Tree）の略です．
 この関数はコールバック関数内のprint()関数をreverse_print()関数に変更します．
 reverse_print()関数はprint関数の文字列を逆から出力する関数で，inserted_functions.pyに記述されています．
 reverse_print()関数の具体的なソースコードは以下のようになっています．
-```py3: inserted_functions.py
+```py: inserted_functions.py
 def reverse_print(s, *args, **kwargs):
     if isinstance(s, str):
         print(s[::-1], *args, **kwargs)
