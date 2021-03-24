@@ -229,7 +229,7 @@ webブラウザでlocalhost:8000/helloを実行して，その時にターミナ
 
 # 参考URL
 ## git
-[Gitの一部のディレクトリだけ取得する方法](https://qiita.com/tbpgr/items/989c6badefff69377da7)
+[Gitの一部のディレクトリだけ取得する方法](https://qiita.com/ponsuke0531/items/1e0ab0d6845ec93a0dc0)
 
 
 ## python ast関連
