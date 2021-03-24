@@ -219,12 +219,20 @@ python3 my_server.py
 
 webブラウザでlocalhost:8000/helloを実行して，その時にターミナル上で"egoh"と出力されていたらOKです．
 
+# 課題
+- web上にあげるためのWSGIサーバーとの接続
+- vhf自体の脆弱性をなくす
+- 様々な脆弱性を対策できるかどうか（現在はsqlインジェクションの一部と不適切な認証の一部のみ）
+- 脆弱性を修正するより良い方法
+- アスペクト指向プログラミング(Aspect Oriented Programing: AOP)との比較，メリットが存在するか
+- どう修正されたのかを確認できる方法
+
 # 参考URL
 ## git
 [Gitの一部のディレクトリだけ取得する方法](https://qiita.com/tbpgr/items/989c6badefff69377da7)
 
 
-## python astについて
+## python ast関連
 [ast --- 抽象構文木](https://docs.python.org/ja/3/library/ast.html)
 
 [Pythonのastモジュール入門](https://qiita.com/t2y/items/c8877cf5d3d22cdcf2a8)
