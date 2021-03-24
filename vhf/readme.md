@@ -94,7 +94,7 @@ my_server.pyがあるディレクトリで以下を実行します．
 ```sh: ローカルで実行
 python3 my_server.py
 ```
-ターミナルで"Serving HTTP on port 8000"が出力されたら，webブラウザで'localhost:8000/hello'を実行します．
+ターミナルで"Serving HTTP on port 8000"が出力されたら，webブラウザでlocalhost:8000/helloを実行します．
 ブラウザにHelloと表示されていたらOK．
 
 終了する時は，ターミナルでctrl（コントロールボタン） + c　で終了します．
@@ -216,4 +216,5 @@ if __name__=="__main__":
 ```sh:再実行
 python3 my_server.py
 ```
-ターミナル上で"egoh"と出力されていたらOKです．
+
+webブラウザでlocalhost:8000/helloを実行して，その時にターミナル上で"egoh"と出力されていたらOKです．
