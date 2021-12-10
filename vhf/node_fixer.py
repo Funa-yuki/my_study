@@ -29,14 +29,24 @@ def rewrite_print_to_reverse_print(ast_callbacks):
         new_ast_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
     return new_ast_callbacks
 
+
 @node_fixer.add
-def insert_query_checker(ast_callbacks):
+def insert_fetch_checker(ast_callbacks):
     new_ast_callbacks = []
     for ast_callback in ast_callbacks:
         node = ast_callback.get('ast')
-        new_node = InsertQueryChecker().visit(node)
+        new_node = InsertFetchChecker().visit(node)
         new_ast_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
     return new_ast_callbacks
+
+# @node_fixer.add
+# def insert_query_checker(ast_callbacks):
+#     new_ast_callbacks = []
+#     for ast_callback in ast_callbacks:
+#         node = ast_callback.get('ast')
+#         new_node = InsertQueryChecker().visit(node)
+#         new_ast_callbacks.append(make_new_callback(ast_callback, new_node=new_node))
+#     return new_ast_callbacks
 
 @node_fixer.add
 def rewrite_for_xss(ast_callbacks):
@@ -86,28 +96,114 @@ def check_and_insert_is_admin(ast_callbacks):
     return new_callbacks
 
 
-### ast Transformer Subclasses
-class InsertQueryChecker(ast.NodeTransformer):
-    def visit_Call(self, node):
-        if isinstance(node.func, ast.Attribute):
-            if isinstance(node.func.value, ast.Name):
-                if node.func.value.id is 'cur':
-                    if node.func.attr is 'execute':
-                        new_args = []
-                        for arg in node.args:
-                            new_arg = ast.Call(
-                                func=(ast.Name(id='escape_special_query', ctx=ast.Load())),
-                                args=[arg],
-                                keywords=[]
-                            )
-                            new_args.append(new_arg)
-                        new_node = ast.Call(
-                            func=node.func,
-                            args=new_args,
-                            keywords=node.keywords
-                        )
-                        return ast.copy_location(new_node, node)
+class InsertFetchChecker(ast.NodeTransformer):
+    def visit_FunctionDef(self, node):
+        sqlite3_name = ['sqlite3']
+        connections = []
+        cursors = []
+        ins_index = []
+        for i in range(len(node.body)):
+            if isinstance(node.body[i], ast.Import):
+                for e in node.body[i].names:
+                    if e.name == 'sqlite3':
+                        sqlite3_name.append(e.asname)
+                
+            if isinstance(node.body[i], ast.Assign):
+                if not isinstance(node.body[i].value, ast.Call):
+                    continue
+                if not isinstance(node.body[i].value.func, ast.Attribute):
+                    continue
+                if not isinstance(node.body[i].value.func.value, ast.Name):
+                    continue
+                if node.body[i].value.func.value.id in sqlite3_name and node.body[i].value.func.attr == 'connect':
+                    connections.append(node.body[i].targets[0].id)
+                if node.body[i].value.func.value.id in connections and node.body[i].value.func.attr == 'cursor':
+                    cursors.append(node.body[i].targets[0].id)
+            
+            if isinstance(node.body[i], ast.Expr):
+                if not isinstance(node.body[i].value, ast.Call):
+                    continue
+                if not isinstance(node.body[i].value.func, ast.Attribute):
+                    continue
+                if not isinstance(node.body[i].value.func.value, ast.Name):
+                    continue
+                if node.body[i].value.func.value.id in cursors and node.body[i].value.func.attr == 'execute':
+                    ins_index.append([i, node.body[i].value.func.value.id, node.body[i].value.args[0]])
+                    
+        
+        for i, cur, que in ins_index:
+            node.body.insert(i+1, ast.Expr(value=ast.Call(func=ast.Name(id='escape_long_fetch', ctx=ast.Load()), args=[ast.Name(id=cur, ctx=ast.Load()), que, ast.Name(id='request', ctx=ast.Load())], keywords=[])))
+        
         return node
+
+### ast Transformer Subclasses
+# class InsertQueryChecker(ast.NodeTransformer):
+#     def visit_FunctionDef(self, node):
+#         sqlite3_name = ['sqlite3']
+#         connections = []
+#         cursors = []
+#         print(ast.dump(node))
+#         for i in range(len(node.body)):
+#             if isinstance(node.body[i], ast.Import):
+#                 for e in node.body[i].names:
+#                     if e.name == 'sqlite3':
+#                         sqlite3_name.append(e.asname)
+                
+#             if isinstance(node.body[i], ast.Assign):
+#                 if not isinstance(node.body[i].value, ast.Call):
+#                     continue
+#                 if not isinstance(node.body[i].value.func, ast.Attribute):
+#                     continue
+#                 if not isinstance(node.body[i].value.func.value, ast.Name):
+#                     continue
+#                 if node.body[i].value.func.value.id in sqlite3_name and node.body[i].value.func.attr == 'connect':
+#                     connections.append(node.body[i].targets[0].id)
+#                 if node.body[i].value.func.value.id in connections and node.body[i].value.func.attr == 'cursor':
+#                     cursors.append(node.body[i].targets[0].id)
+            
+#             if isinstance(node.body[i], ast.Expr):
+#                 if not isinstance(node.body[i].value, ast.Call):
+#                     continue
+#                 if not isinstance(node.body[i].value.func, ast.Attribute):
+#                     continue
+#                 if not isinstance(node.body[i].value.func.value, ast.Name):
+#                     continue
+#                 if node.body[i].value.func.value.id in cursors and node.body[i].value.func.attr == 'execute':
+#                     new_args = []
+#                     for arg in node.body[i].value.args:
+#                         new_arg = ast.Call(
+#                             func=(ast.Name(id='escape_special_query', ctx=ast.Load())),
+#                             args=[arg],
+#                             keywords=[]
+#                         )
+#                         new_args.append(new_arg)
+#                     new_node = ast.Call(
+#                         func=node.body[i].value.func,
+#                         args=new_args,
+#                         keywords=node.body[i].value.keywords
+#                     )
+#                     node.body[i].value = new_node
+#         return node
+
+        # if isinstance(node.func, ast.Attribute):
+        #     if isinstance(node.func.value, ast.Name):
+        #         if node.func.value.id is 'cur':
+        #             if node.func.attr is 'execute':
+        #                 new_args = []
+        #                 for arg in node.args:
+        #                     new_arg = ast.Call(
+        #                         func=(ast.Name(id='escape_special_query', ctx=ast.Load())),
+        #                         args=[arg],
+        #                         keywords=[]
+        #                     )
+        #                     new_args.append(new_arg)
+        #                 new_node = ast.Call(
+        #                     func=node.func,
+        #                     args=new_args,
+        #                     keywords=node.keywords
+        #                 )
+        #                 return ast.copy_location(new_node, node)
+        # return node
 
 class RewriteReversePrint(ast.NodeTransformer):
     def visit_Name(self, node):

@@ -22,6 +22,10 @@ class Request:
         return self.environ['REMOTE_ADDR']
 
     @property
+    def client_user_agent(self):
+        return self.environ['HTTP_USER_AGENT']
+
+    @property
     def method(self):
         return self.environ['REQUEST_METHOD'].upper()
 

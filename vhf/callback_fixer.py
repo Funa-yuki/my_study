@@ -6,7 +6,8 @@ import inspect
 import copy
 
 #server.pyのimportをここに適用させてあげる必要がある？
-# from bottle import jinja2_template as tmpl
+#from bottle import jinja2_template as tmpl
+#import sqlite3
 
 class Fix(object):
     def __init__(self):
